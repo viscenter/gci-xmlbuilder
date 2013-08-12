@@ -15,6 +15,8 @@ class App:
         
         (self.RootWindow).configure(borderwidth=20)
         
+        self.answer = StringVar()
+        
         self.itemList = []
         self.indexList = []
         self.subitemList = []
@@ -71,12 +73,37 @@ class App:
 
     def newClick(self):
         
+        if len(self.itemList) > 0:
+        
+            self.newwin = Toplevel()
+            (self.newwin).title('WARNING')
+            (self.newwin).configure(borderwidth=20)
+            (self.newwin).resizable(width=FALSE, height=FALSE)
+            
+            message = "This operation will delete all the existing items. Are you sure you want to continue?"
+            Label(self.newwin, text=message).grid(row=0, rowspan=3, column=1, columnspan=2, sticky=W)
+            Button(self.newwin, text='Yes', command= self.newContinued).grid(row=3, column=1, sticky=E)
+            Button(self.newwin, text='No', command=lambda: (self.newwin).destroy()).grid(row=3, column=2, sticky=W)
+            
+            (self.newwin).mainloop()
+            #(self.newwin).destroy
+            
+        else:
+            
+            (self.openxmlfile_path).set("")
+            (self.openxmlfile).set("Untitled")
+            
+
+    def newContinued(self):
+    
         self.itemList = []
         self.subitemList = []
         (self.listbox).delete(0, END)
         
         (self.openxmlfile_path).set("")
         (self.openxmlfile).set("Untitled")
+        
+        (self.newwin).destroy()
 
     
     def getFilePath(self):
@@ -1302,9 +1329,52 @@ class App:
             
             checkBox.select()
         
+     
+    def overwriteClick(self, index, order):
+        
+        #store original value of self.index
+        original = self.leindex
+        
+        # have index of item that will be overwritten
+        self.leindex = index
+        
+        # use code of edit function to overwrite with written info on window
+        self.editListInfo(True)
+        
+        if order == "edit":
+            
+            #delete item you were editing from list
+            (self.listbox).delete(original)
+            
+            #delete information of item from item list
+            del self.itemList[original]
+            
+            #remove index from index list ***NOT SURE ABOUT THIS
+            del self.indexList[original]
+        
+        
+        #close add and warning windows
+        (self.duplicateWin).destroy()
+        (self.AddItemWindow).destroy()
+        
+        win = Toplevel()
+        #win.title('WARNING')
+        (win).configure(borderwidth=20)
+        (win).resizable(width=FALSE, height=FALSE)
+        
+        message = "item with id " + self.itemList[self.leindex][10] + " was overwritten"
+        Label(win, text=message).grid(row=0, rowspan=3, column=1, columnspan=2, sticky=W)
+        Button(win, text='OK', command=win.destroy).grid(row=3, column=1, columnspan=2, sticky=N+S+E+W)
+        
+        win.mainloop()
+        
+        #put self.index back to original value
+        self.leindex = original
+        
+        
         
      
-    def editListInfo(self, error):
+    def editListInfo(self, overwrite):
         
         if "*" not in (self.openxmlfile).get():
         
@@ -1312,168 +1382,169 @@ class App:
             xmlname = xmlname + "*"
             (self.openxmlfile).set(xmlname)
         
-        if not error: #if there are no errors, change info from the item list and leave the window
         
-            elemIndex = self.leindex
-            
-            #item type
-            self.itemList[elemIndex][0] = (self.item_type).get()
-            
-            #item title
-            self.itemList[elemIndex][1] = (self.item_title).get()
-            
-            #item description
-            self.itemList[elemIndex][2] = (self.item_description).get("1.0", END) 
-            
-            #item transcript
-            self.itemList[elemIndex][3] = (self.item_transcript).get("1.0", END)          
-            
-            #item originalSource
-            self.itemList[elemIndex][4] = (self.item_originalSource).get()
-    
-            #item license
-            self.itemList[elemIndex][5] = (self.item_license).get()
-            
-            #item copyright
-            self.itemList[elemIndex][6] = (self.item_copyright).get()
-            
-            #item permission
-            self.itemList[elemIndex][7] = (self.item_permission).get()
-            
-            #item file
-            self.itemList[elemIndex][8] = (self.item_file).get()
-            
-            #item googlePath
-            self.itemList[elemIndex][9] = (self.item_googlePath).get()
-            
-            #item googleID
-            self.itemList[elemIndex][10] = (self.item_googleID).get()
-            
-            #item fileType
-            self.itemList[elemIndex][11] = (self.item_fileType).get()
-            
-            #item language
-            self.itemList[elemIndex][12] = (self.item_language).get()
-    
-            #item format
-            self.itemList[elemIndex][13] = (self.item_format).get() 
-    
-            #item provenance
-            self.itemList[elemIndex][14] = (self.item_provenance).get()
-            
-            #item subject
-            self.itemList[elemIndex][15] = (self.item_subject).get()
-            
-            #item creator
-            self.itemList[elemIndex][16] = (self.item_creator).get()
-    
-            #item contributor
-            self.itemList[elemIndex][17] = (self.item_contributor).get()
-    
-            #item publisher
-            self.itemList[elemIndex][18] = (self.item_publisher).get()
-    
-            #item primary place
-            self.itemList[elemIndex][19] = (self.item_primaryPlace).get()
-            
-            #item primaryLatitude
-            self.itemList[elemIndex][20] = (self.item_primaryLatitude).get() 
-    
-            #item primaryLongitude
-            self.itemList[elemIndex][21] = (self.item_primaryLongitude).get()
-            
-            #item primStartDay
-            self.itemList[elemIndex][22] = (self.item_primStartDay).get()
-    
-            #item primStartMonth
-            self.itemList[elemIndex][23] = (self.item_primStartMonth).get()
-            
-            #item primStartYear
-            self.itemList[elemIndex][24] = (self.item_primStartYear).get()
-    
-            #item primEndDay
-            self.itemList[elemIndex][25] = (self.item_primEndDay).get()
-            
-            #item primEndMonth
-            self.itemList[elemIndex][26] = (self.item_primEndMonth).get()
-            
-            #item primEndYear
-            self.itemList[elemIndex][27] = (self.item_primEndYear).get()
-            
-            #item createdPlace
-            self.itemList[elemIndex][28] = (self.item_createdPlace).get()
-            
-            #item createdLatitude
-            self.itemList[elemIndex][29] = (self.item_createdLatitude).get()
-                
-            #item createdLongitude
-            self.itemList[elemIndex][30] = (self.item_createdLongitude).get()
-            
-            #item creStartDay
-            self.itemList[elemIndex][31] = (self.item_creStartDay).get()
-            
-            #item creStartMonth
-            self.itemList[elemIndex][32] = (self.item_creStartMonth).get()
-            
-            #item creStartYear
-            self.itemList[elemIndex][33] = (self.item_creStartYear).get()
-            
-            #item creEndDay
-            self.itemList[elemIndex][34] = (self.item_creEndDay).get()
-            
-            #item creEndMonth
-            self.itemList[elemIndex][35] = (self.item_creEndMonth).get()
-            
-            #item creEndYear
-            self.itemList[elemIndex][36] = (self.item_creEndYear).get()
-            
-            #item publishedPlace
-            self.itemList[elemIndex][37] = (self.item_publishedPlace).get()
-            
-            #item publishedLatitude
-            self.itemList[elemIndex][38] = (self.item_publishedLatitude).get()
-            
-            #item publishedLongitude
-            self.itemList[elemIndex][39] = (self.item_publishedLongitude).get()
-            
-            #item pubStartDay
-            self.itemList[elemIndex][40] = (self.item_pubStartDay).get()
-            
-            #item pubStartMonth
-            self.itemList[elemIndex][41] = (self.item_pubStartMonth).get()
-            
-            #item pubStartYear
-            self.itemList[elemIndex][42] = (self.item_pubStartYear).get()
-            
-            #item pubEndDay
-            self.itemList[elemIndex][43] = (self.item_pubEndDay).get()
-            
-            #item pubEndMonth
-            self.itemList[elemIndex][44] = (self.item_pubEndMonth).get()
-    
-            #item pubEndYear
-            self.itemList[elemIndex][45] = (self.item_pubEndYear).get()
-    
-            #item identifier
-            self.itemList[elemIndex][46] = (self.item_identifier).get()
-            
-            #originalSource URL
-            self.itemList[elemIndex][47] = (self.item_oriURL).get()
-            
-            #license URL
-            self.itemList[elemIndex][48] = (self.item_liURL).get()
-            
-            #disclaimer
-            self.itemList[elemIndex][49] = (self.item_disclaimer).get("1.0",END)
+        elemIndex = self.leindex
         
-            #yes/no to autogenerate
+        #item type
+        self.itemList[elemIndex][0] = (self.item_type).get()
+        
+        #item title
+        self.itemList[elemIndex][1] = (self.item_title).get()
+        
+        #item description
+        self.itemList[elemIndex][2] = (self.item_description).get("1.0", END) 
+        
+        #item transcript
+        self.itemList[elemIndex][3] = (self.item_transcript).get("1.0", END)          
+        
+        #item originalSource
+        self.itemList[elemIndex][4] = (self.item_originalSource).get()
+
+        #item license
+        self.itemList[elemIndex][5] = (self.item_license).get()
+        
+        #item copyright
+        self.itemList[elemIndex][6] = (self.item_copyright).get()
+        
+        #item permission
+        self.itemList[elemIndex][7] = (self.item_permission).get()
+        
+        #item file
+        self.itemList[elemIndex][8] = (self.item_file).get()
+        
+        #item googlePath
+        self.itemList[elemIndex][9] = (self.item_googlePath).get()
+        
+        #item googleID
+        self.itemList[elemIndex][10] = (self.item_googleID).get()
+        
+        #item fileType
+        self.itemList[elemIndex][11] = (self.item_fileType).get()
+        
+        #item language
+        self.itemList[elemIndex][12] = (self.item_language).get()
+
+        #item format
+        self.itemList[elemIndex][13] = (self.item_format).get() 
+
+        #item provenance
+        self.itemList[elemIndex][14] = (self.item_provenance).get()
+        
+        #item subject
+        self.itemList[elemIndex][15] = (self.item_subject).get()
+        
+        #item creator
+        self.itemList[elemIndex][16] = (self.item_creator).get()
+
+        #item contributor
+        self.itemList[elemIndex][17] = (self.item_contributor).get()
+
+        #item publisher
+        self.itemList[elemIndex][18] = (self.item_publisher).get()
+
+        #item primary place
+        self.itemList[elemIndex][19] = (self.item_primaryPlace).get()
+        
+        #item primaryLatitude
+        self.itemList[elemIndex][20] = (self.item_primaryLatitude).get() 
+
+        #item primaryLongitude
+        self.itemList[elemIndex][21] = (self.item_primaryLongitude).get()
+        
+        #item primStartDay
+        self.itemList[elemIndex][22] = (self.item_primStartDay).get()
+
+        #item primStartMonth
+        self.itemList[elemIndex][23] = (self.item_primStartMonth).get()
+        
+        #item primStartYear
+        self.itemList[elemIndex][24] = (self.item_primStartYear).get()
+
+        #item primEndDay
+        self.itemList[elemIndex][25] = (self.item_primEndDay).get()
+        
+        #item primEndMonth
+        self.itemList[elemIndex][26] = (self.item_primEndMonth).get()
+        
+        #item primEndYear
+        self.itemList[elemIndex][27] = (self.item_primEndYear).get()
+        
+        #item createdPlace
+        self.itemList[elemIndex][28] = (self.item_createdPlace).get()
+        
+        #item createdLatitude
+        self.itemList[elemIndex][29] = (self.item_createdLatitude).get()
             
-            self.itemList[elemIndex][50] = (self.YesNo).get()
+        #item createdLongitude
+        self.itemList[elemIndex][30] = (self.item_createdLongitude).get()
         
-            #if item ID had been changed, then change the old item ID stored in (some of) the subitems to the new ID
+        #item creStartDay
+        self.itemList[elemIndex][31] = (self.item_creStartDay).get()
         
-            if (self.itemList[elemIndex][10]) != (self.olditemID):
+        #item creStartMonth
+        self.itemList[elemIndex][32] = (self.item_creStartMonth).get()
         
+        #item creStartYear
+        self.itemList[elemIndex][33] = (self.item_creStartYear).get()
+        
+        #item creEndDay
+        self.itemList[elemIndex][34] = (self.item_creEndDay).get()
+        
+        #item creEndMonth
+        self.itemList[elemIndex][35] = (self.item_creEndMonth).get()
+        
+        #item creEndYear
+        self.itemList[elemIndex][36] = (self.item_creEndYear).get()
+        
+        #item publishedPlace
+        self.itemList[elemIndex][37] = (self.item_publishedPlace).get()
+        
+        #item publishedLatitude
+        self.itemList[elemIndex][38] = (self.item_publishedLatitude).get()
+        
+        #item publishedLongitude
+        self.itemList[elemIndex][39] = (self.item_publishedLongitude).get()
+        
+        #item pubStartDay
+        self.itemList[elemIndex][40] = (self.item_pubStartDay).get()
+        
+        #item pubStartMonth
+        self.itemList[elemIndex][41] = (self.item_pubStartMonth).get()
+        
+        #item pubStartYear
+        self.itemList[elemIndex][42] = (self.item_pubStartYear).get()
+        
+        #item pubEndDay
+        self.itemList[elemIndex][43] = (self.item_pubEndDay).get()
+        
+        #item pubEndMonth
+        self.itemList[elemIndex][44] = (self.item_pubEndMonth).get()
+
+        #item pubEndYear
+        self.itemList[elemIndex][45] = (self.item_pubEndYear).get()
+
+        #item identifier
+        self.itemList[elemIndex][46] = (self.item_identifier).get()
+        
+        #originalSource URL
+        self.itemList[elemIndex][47] = (self.item_oriURL).get()
+        
+        #license URL
+        self.itemList[elemIndex][48] = (self.item_liURL).get()
+        
+        #disclaimer
+        self.itemList[elemIndex][49] = (self.item_disclaimer).get("1.0",END)
+    
+        #yes/no to autogenerate
+        
+        self.itemList[elemIndex][50] = (self.YesNo).get()
+    
+        #if item ID had been changed, then change the old item ID stored in (some of) the subitems to the new ID
+    
+        if (not overwrite):
+            
+            if ((self.itemList[elemIndex][10]) != (self.olditemID)):
+    
                 index = 0
                 
                 while index < len(self.subitemList): 
@@ -1483,7 +1554,7 @@ class App:
                         self.subitemList[index][0] = self.itemList[elemIndex][10]
                         
                     index = index + 1
-            
+        
             ###
             #edit info from visible list
             ###
@@ -1741,26 +1812,7 @@ class App:
             error = True
             
             (self.item_googleID).configure(highlightbackground="red")
-            
-        #check that item IDs do not repeat among items
-        
-        if (self.olditemID) != (self.item_googleID).get():
-        
-            i = 0
-            
-            while i < len(self.itemList):
-                
-                if (self.item_googleID).get() == (self.itemList[i][10]):
-                    
-                    error = True
-                    
-                    (self.item_googleID).configure(highlightbackground="red")
-                    
-                    print "google IDs can not repeat among items!"
-                    
-                    i = len(self.itemList) 
-                    
-                i += 1
+
           
         ####  
         #primary date
@@ -2050,195 +2102,262 @@ class App:
             
                 (self.item_pubEndYear).configure(highlightbackground="red")
                 
-        if order == "add":
-            
-            self.addItemClick(error)
-            
-        else:
-            
-            self.editListInfo(error)
+                #check that item IDs do not repeat among items
+        
+        if not error: #no error, error = False
+        
+            if order == "edit":
+                
+                if (self.olditemID) != (self.item_googleID).get():
+                
+                    i = 0
+                    
+                    while i < len(self.itemList):
+                        
+                        if (self.item_googleID).get() == (self.itemList[i][10]):
+                            
+                            error = True
+                            
+                            (self.item_googleID).configure(highlightbackground="red")
+                            
+                            #print "google IDs can not repeat among items!"
+                            
+                            self.duplicateWin = Toplevel()
+                            (self.duplicateWin).title('WARNING')
+                            (self.duplicateWin).configure(borderwidth=20)
+                            (self.duplicateWin).resizable(width=FALSE, height=FALSE)
+                            
+                            message = "The specified google ID already exists for another item. \nDo you want to override the item?"
+                            Label(self.duplicateWin, text=message).grid(row=0, rowspan=3, column=1, columnspan=2, sticky=W)
+                            Button(self.duplicateWin, text='Yes', command=lambda: self.overwriteClick(i,order)).grid(row=3, column=1, sticky=E) #, command=win.destroy)
+                            Button(self.duplicateWin, text='No', command=(self.duplicateWin).destroy).grid(row=3, column=2, sticky=W)
+                            
+                            (self.duplicateWin).mainloop()
+                            
+                            i = len(self.itemList) 
+                            
+                        i += 1
+        
+            else:
+                
+                i = 0
+                
+                while i < len(self.itemList):
+                    
+                    if (self.item_googleID).get() == (self.itemList[i][10]):
+                        
+                        error = True
+                        
+                        (self.item_googleID).configure(highlightbackground="red")
+                        
+                        #print "google IDs can not repeat among items!"
+                        
+                        self.duplicateWin = Toplevel()
+                        (self.duplicateWin).title('WARNING')
+                        (self.duplicateWin).configure(borderwidth=20)
+                        (self.duplicateWin).resizable(width=FALSE, height=FALSE)
+                        
+                        message = "The specified google ID already exists for another item. \nDo you want to override the item?"
+                        Label(self.duplicateWin, text=message).grid(row=0, rowspan=3, column=1, columnspan=2, sticky=W)
+                        Button(self.duplicateWin, text='Yes', command=lambda: self.overwriteClick(i,order)).grid(row=3, column=1, sticky=E) #, command=win.destroy)
+                        Button(self.duplicateWin, text='No', command=(self.duplicateWin).destroy).grid(row=3, column=2, sticky=W)
+                        
+                        (self.duplicateWin).mainloop()
+                        
+                        i = len(self.itemList) 
+                        
+                    i += 1
+        
+            if not error:
+                    
+                if order == "add":
+                    
+                    self.addItemClick()
+                    
+                else:
+                    
+                    self.editListInfo(False)
     
         
-    def addItemClick(self, error):
+    def addItemClick(self):
         
         if "*" not in (self.openxmlfile).get():
         
             xmlname = (self.openxmlfile).get()
             xmlname = xmlname + "*"
             (self.openxmlfile).set(xmlname)
-        
-        if not error: #if there are no errors, add info to the item list and leave the window
-            
-            tempList = []
-                
-            tempList.append((self.item_type).get())
-            tempList.append((self.item_title).get())
-            tempList.append((self.item_description).get("1.0",END))
-            tempList.append((self.item_transcript).get("1.0",END))
-            tempList.append((self.item_originalSource).get())
-            tempList.append((self.item_license).get())
-            tempList.append((self.item_copyright).get())
-            tempList.append((self.item_permission).get())
-            
-            tempList.append((self.item_file).get())
-            
-            tempList.append((self.item_googlePath).get())
-            tempList.append((self.item_googleID).get())
-            tempList.append((self.item_fileType).get())
-            tempList.append((self.item_language).get())
-            tempList.append((self.item_format).get())
-            tempList.append((self.item_provenance).get())
-            tempList.append((self.item_subject).get())
-            tempList.append((self.item_creator).get())
-            tempList.append((self.item_contributor).get())
-            tempList.append((self.item_publisher).get())
-            
-            #primary 
-            tempList.append((self.item_primaryPlace).get())
-            tempList.append((self.item_primaryLatitude).get())
-            tempList.append((self.item_primaryLongitude).get())
-            tempList.append((self.item_primStartDay).get())
-            tempList.append((self.item_primStartMonth).get())
-            tempList.append((self.item_primStartYear).get())
-            tempList.append((self.item_primEndDay).get())
-            tempList.append((self.item_primEndMonth).get())
-            tempList.append((self.item_primEndYear).get())
-            
-            #created
-            tempList.append((self.item_createdPlace).get())
-            tempList.append((self.item_createdLatitude).get())
-            tempList.append((self.item_createdLongitude).get())
-            tempList.append((self.item_creStartDay).get())
-            tempList.append((self.item_creStartMonth).get())
-            tempList.append((self.item_creStartYear).get())
-            tempList.append((self.item_creEndDay).get())
-            tempList.append((self.item_creEndMonth).get())
-            tempList.append((self.item_creEndYear).get())
-            
-            #published
-            tempList.append((self.item_publishedPlace).get())
-            tempList.append((self.item_publishedLatitude).get())
-            tempList.append((self.item_publishedLongitude).get())
-            tempList.append((self.item_pubStartDay).get())
-            tempList.append((self.item_pubStartMonth).get())
-            tempList.append((self.item_pubStartYear).get())
-            tempList.append((self.item_pubEndDay).get())
-            tempList.append((self.item_pubEndMonth).get())
-            tempList.append((self.item_pubEndYear).get())
-            
-            tempList.append((self.item_identifier).get())
 
-            #URLs
             
-            tempList.append((self.item_oriURL).get())
-            tempList.append((self.item_liURL).get())
+        tempList = []
             
-            #disclaimer
-            tempList.append((self.item_disclaimer).get("1.0",END))
+        tempList.append((self.item_type).get())
+        tempList.append((self.item_title).get())
+        tempList.append((self.item_description).get("1.0",END))
+        tempList.append((self.item_transcript).get("1.0",END))
+        tempList.append((self.item_originalSource).get())
+        tempList.append((self.item_license).get())
+        tempList.append((self.item_copyright).get())
+        tempList.append((self.item_permission).get())
+        
+        tempList.append((self.item_file).get())
+        
+        tempList.append((self.item_googlePath).get())
+        tempList.append((self.item_googleID).get())
+        tempList.append((self.item_fileType).get())
+        tempList.append((self.item_language).get())
+        tempList.append((self.item_format).get())
+        tempList.append((self.item_provenance).get())
+        tempList.append((self.item_subject).get())
+        tempList.append((self.item_creator).get())
+        tempList.append((self.item_contributor).get())
+        tempList.append((self.item_publisher).get())
+        
+        #primary 
+        tempList.append((self.item_primaryPlace).get())
+        tempList.append((self.item_primaryLatitude).get())
+        tempList.append((self.item_primaryLongitude).get())
+        tempList.append((self.item_primStartDay).get())
+        tempList.append((self.item_primStartMonth).get())
+        tempList.append((self.item_primStartYear).get())
+        tempList.append((self.item_primEndDay).get())
+        tempList.append((self.item_primEndMonth).get())
+        tempList.append((self.item_primEndYear).get())
+        
+        #created
+        tempList.append((self.item_createdPlace).get())
+        tempList.append((self.item_createdLatitude).get())
+        tempList.append((self.item_createdLongitude).get())
+        tempList.append((self.item_creStartDay).get())
+        tempList.append((self.item_creStartMonth).get())
+        tempList.append((self.item_creStartYear).get())
+        tempList.append((self.item_creEndDay).get())
+        tempList.append((self.item_creEndMonth).get())
+        tempList.append((self.item_creEndYear).get())
+        
+        #published
+        tempList.append((self.item_publishedPlace).get())
+        tempList.append((self.item_publishedLatitude).get())
+        tempList.append((self.item_publishedLongitude).get())
+        tempList.append((self.item_pubStartDay).get())
+        tempList.append((self.item_pubStartMonth).get())
+        tempList.append((self.item_pubStartYear).get())
+        tempList.append((self.item_pubEndDay).get())
+        tempList.append((self.item_pubEndMonth).get())
+        tempList.append((self.item_pubEndYear).get())
+        
+        tempList.append((self.item_identifier).get())
+
+        #URLs
+        
+        tempList.append((self.item_oriURL).get())
+        tempList.append((self.item_liURL).get())
+        
+        #disclaimer
+        tempList.append((self.item_disclaimer).get("1.0",END))
+        
+        #yes/no to autogenerated data
+        tempList.append((self.YesNo).get())
+        
             
-            #yes/no to autogenerated data
-            tempList.append((self.YesNo).get())
+        (self.itemList).append(tempList)
             
+        (self.indexList).append(len(self.itemList) - 1) #index of last added item
+        
+        
+        self.item_id = self.item_googleID
+        
+        if (self.item_type.get()) == "collection": #if the item is a collection, add subitems into subitem list
+            
+            #get names of files/pages
+            
+            namesOfFiles = os.listdir((self.item_file).get()) 
+ 
+            for i in namesOfFiles: 
+               separated = i.split('.')
+               extension = separated[len(separated) - 1]
+               if extension != 'jpg': #if a file in the directory does not have the extension .jpg (so it's not a image), then remove its name from the namesOfFiles list.
+                  #print("\n\nignoring file named "+i)
+                  namesOfFiles.remove(i)
+         
+            EnglishTranscript = "None for now..."
+            LatinTranscript = "None for now..."
+         
+            tempList = [] #reuse tempList to store information of one subitem at a time
+            
+            counter = 0
+        
+            while counter < len(namesOfFiles):
+                ###
+                #create list that corresponds to one subitem
+                ###
                 
-            (self.itemList).append(tempList)
+                filename = namesOfFiles[counter]
+        
+                tempList.append((self.item_id).get())   #add item id to be able to later identify to which item does this subitem belong to
                 
-            (self.indexList).append(len(self.itemList) - 1) #index of last added item
-            
-            
-            self.item_id = self.item_googleID
-            
-            if (self.item_type.get()) == "collection": #if the item is a collection, add subitems into subitem list
+                #get page number from file name so to create the id, title and descripton of the subitem
+                NoExtList = filename.split(".")
+                NoExtFile = NoExtList[0]              #filename without extension
+                DividedName= NoExtFile.split("-")     #filename divided by '-'
+                sizeNoExt = len(DividedName)      
+                pageNumber = DividedName[sizeNoExt - 1]
+                pageNumber = int(pageNumber) #last part of file name, the page number
                 
-                #get names of files/pages
+                #add id of subitem
+                tempList.append((self.item_id).get() + "-" + str(pageNumber))
                 
-                namesOfFiles = os.listdir((self.item_file).get()) 
-     
-                for i in namesOfFiles: 
-                   separated = i.split('.')
-                   extension = separated[len(separated) - 1]
-                   if extension != 'jpg': #if a file in the directory does not have the extension .jpg (so it's not a image), then remove its name from the namesOfFiles list.
-                      #print("\n\nignoring file named "+i)
-                      namesOfFiles.remove(i)
-             
-                EnglishTranscript = "None for now..."
-                LatinTranscript = "None for now..."
-             
-                tempList = [] #reuse tempList to store information of one subitem at a time
+                #add title of subitem
+                tempList.append("Page "+str(pageNumber))             
                 
-                counter = 0
-            
-                while counter < len(namesOfFiles):
-                    ###
-                    #create list that corresponds to one subitem
-                    ###
+                if (self.YesNo).get() == 1: #if user selected to autogenerate folio descriptions, add folio description of subitem
+                
+                    LePage = ""
+                    folioNum = str((pageNumber+1)//2)
                     
-                    filename = namesOfFiles[counter]
-            
-                    tempList.append((self.item_id).get())   #add item id to be able to later identify to which item does this subitem belong to
-                    
-                    #get page number from file name so to create the id, title and descripton of the subitem
-                    NoExtList = filename.split(".")
-                    NoExtFile = NoExtList[0]              #filename without extension
-                    DividedName= NoExtFile.split("-")     #filename divided by '-'
-                    sizeNoExt = len(DividedName)      
-                    pageNumber = DividedName[sizeNoExt - 1]
-                    pageNumber = int(pageNumber) #last part of file name, the page number
-                    
-                    #add id of subitem
-                    tempList.append((self.item_id).get() + "-" + str(pageNumber))
-                    
-                    #add title of subitem
-                    tempList.append("Page "+str(pageNumber))             
-                    
-                    if (self.YesNo).get() == 1: #if user selected to autogenerate folio descriptions, add folio description of subitem
-                    
-                        LePage = ""
-                        folioNum = str((pageNumber+1)//2)
-                        
-                        if (folioNum[len(folioNum)-1] == '1') & (folioNum != '11'):
-                            LePage = "st"
+                    if (folioNum[len(folioNum)-1] == '1') & (folioNum != '11'):
+                        LePage = "st"
+                    else:
+                        if (folioNum[len(folioNum)-1] == '2') & (folioNum != '12'):
+                            LePage = "nd"
                         else:
-                            if (folioNum[len(folioNum)-1] == '2') & (folioNum != '12'):
-                                LePage = "nd"
+                            if (folioNum[len(folioNum)-1] == '3') & (folioNum != '13'):
+                                LePage = "rd"
                             else:
-                                if (folioNum[len(folioNum)-1] == '3') & (folioNum != '13'):
-                                    LePage = "rd"
-                                else:
-                                    LePage = "th"
-                            
-                        folioInfo = "The " + folioNum + LePage + " folio." #note, // is for integer division, it truncates the result.
-                            
-                        tempList.append(folioInfo)
+                                LePage = "th"
                         
-                    else: #not sure if we should have this here. what to do about description if user doesn't want it to be autogenerated folio info?
+                    folioInfo = "The " + folioNum + LePage + " folio." #note, // is for integer division, it truncates the result.
                         
-                        tempList.append("Page "+str(pageNumber))
+                    tempList.append(folioInfo)
                     
-                    #add image path
-                    pathOfImage = (self.item_googlePath).get() + filename #result: googlePath/ChadGospels-page.jpg
-                    tempList.append(pathOfImage)
+                else: #description tag will not exist
                     
-                    #add english and latin transcripts
-                    tempList.append(EnglishTranscript)                   
-                    tempList.append(LatinTranscript)                     
-                    
-                    #add the list with the subitem information into the list that will contain the info of ALL the subitems
-                    (self.subitemList).append(tempList)                          
-                    
-                    counter += 1  #increment counter by 1
-                    
-                    tempList = [] #reinitialize tempList            
-            
-            #add info to visible list        
-            string = str((self.itemList[len(self.itemList) - 1][0]) + (self.itemList[len(self.itemList) - 1][1]))
-            (self.listbox).insert(END, string)
-            
-            #add index to index list
-            
-            (self.indexList).append(len(self.itemList) - 1)
+                    tempList.append("")
                 
-            #close window
-            (self.AddItemWindow).destroy()
+                #add image path
+                pathOfImage = (self.item_googlePath).get() + filename #result: googlePath/ChadGospels-page.jpg
+                tempList.append(pathOfImage)
+                
+                #add english and latin transcripts
+                tempList.append(EnglishTranscript)                   
+                tempList.append(LatinTranscript)                     
+                
+                #add the list with the subitem information into the list that will contain the info of ALL the subitems
+                (self.subitemList).append(tempList)                          
+                
+                counter += 1  #increment counter by 1
+                
+                tempList = [] #reinitialize tempList            
+        
+        #add info to visible list        
+        string = str((self.itemList[len(self.itemList) - 1][0]) + (self.itemList[len(self.itemList) - 1][1]))
+        (self.listbox).insert(END, string)
+        
+        #add index to index list
+        
+        (self.indexList).append(len(self.itemList) - 1)
+            
+        #close window
+        (self.AddItemWindow).destroy()
         
       
       
@@ -2351,7 +2470,19 @@ class App:
                 
                             if child.attrib['identifier'] == (self.itemList[i][10]):
                                 
-                                print "google IDs can not repeat among items!"
+                                #print "google IDs can not repeat among items!"
+                                
+                                win = Toplevel()
+                                win.title('WARNING')
+                                (win).configure(borderwidth=20)
+                                (win).resizable(width=FALSE, height=FALSE)
+                                
+                                message = "The specified google ID already exists for another item. \nDo you want to override the item?"
+                                Label(win, text=message).grid(row=0, rowspan=3, column=1, columnspan=2, sticky=W)
+                                Button(win, text='Yes').grid(row=3, column=1, sticky=E) #, command=win.destroy)
+                                Button(win, text='No', command=win.destroy).grid(row=3, column=2, sticky=W)
+                                
+                                win.mainloop()
                                 
                                 if True:
                                     
@@ -3163,9 +3294,12 @@ class App:
                             Text.text = self.subitemList[j][2]
                             
                             #write the description tag
-                            Description = ET.SubElement(Subitem, "description")
-                            Text = ET.SubElement(Description, "text")                                
-                            Text.text = self.subitemList[j][3]
+                            
+                            if self.subitemList[j][3] != "":
+                                
+                                Description = ET.SubElement(Subitem, "description")
+                                Text = ET.SubElement(Description, "text")                                
+                                Text.text = self.subitemList[j][3]
                             
                             #write the image tag
                             Image = ET.SubElement(Subitem, "image") 
