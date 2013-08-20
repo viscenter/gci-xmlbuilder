@@ -78,7 +78,8 @@ class App:
         self.duplicate_frame.grid(row=2, column=1, sticky=E)
         
         #self.replace will store the value of the radio button selection, or 0 if user decides to do nothing when a duplicate on import appears. 0 means "do nothing", 1 means "replace one", and 2 means "replace all"
-        self.replace = IntVar(1)
+        self.replace = IntVar()
+        (self.replace).set(1)
         Radiobutton(self.duplicate_frame, text="replace one at a time", variable=self.replace, value=0).grid(row=0, column=0, sticky=E)
         Radiobutton(self.duplicate_frame, text="replace all", variable=self.replace, value=1).grid(row=0, column=1, sticky=E)
         
