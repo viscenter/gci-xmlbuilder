@@ -1,11 +1,15 @@
 from Tkinter import *                   #import library that enables the creation of the GUI
+#from ttk import *
 from tkFileDialog import *              #import library to be able to ask file name by dialog box
+import tkMessageBox                     #import library that facilitates the creation of dialop pop-up boxes
 import csv                              #import library that faciliates reading and writting csv files
 import xml.etree.cElementTree as ET     #import library that facilitates writting xml files
 from xml.dom import minidom             
 import os
 import os.path
 import re
+
+tree_columns = ("country", "capital", "currency")
 
 class App:
 
@@ -30,10 +34,25 @@ class App:
         
         self.openxmlfile_path = StringVar(self.RootWindow)
         
-        #Label(self.list_frame, text="Added items:").pack(side=TOP)
-        
         self.listbox = Listbox(self.RootWindow, width=125, height=35, selectmode=MULTIPLE)
         (self.listbox).grid(row=1, column=0, columnspan=3, sticky=N+E+W+S)
+        
+        #container = Frame()
+        #container.grid(row=1, column=0, columnspan=3, sticky=N+E+W+S)
+        #
+        ## XXX Sounds like a good support class would be one for constructing
+        ##     a treeview with scrollbars.
+        #self.tree = Treeview(columns=tree_columns, show="headings")
+        #vsb = Scrollbar(orient="vertical", command=self.tree.yview)
+        #hsb = Scrollbar(orient="horizontal", command=self.tree.xview)
+        #self.tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+        #self.tree.grid(column=0, row=0, sticky='nsew', in_=container)
+        #vsb.grid(column=1, row=0, sticky='ns', in_=container)
+        #hsb.grid(column=0, row=1, sticky='ew', in_=container)
+        #
+        #container.grid_columnconfigure(0, weight=1)
+        #container.grid_rowconfigure(0, weight=1)
+        
         
         #left corner buttons
         
@@ -52,6 +71,16 @@ class App:
         
         self.import_info = Button(self.item_frame, text="Import", command=lambda: self.openInfoClick("import"))
         (self.import_info).grid(row=0, column=3, sticky=W)
+        
+        #middle buttons
+        
+        self.duplicate_frame = Frame(self.RootWindow)
+        self.duplicate_frame.grid(row=2, column=1, sticky=E)
+        
+        #self.replace will store the value of the radio button selection, or 0 if user decides to do nothing when a duplicate on import appears. 0 means "do nothing", 1 means "replace one", and 2 means "replace all"
+        self.replace = IntVar(1)
+        Radiobutton(self.duplicate_frame, text="replace one at a time", variable=self.replace, value=0).grid(row=0, column=0, sticky=E)
+        Radiobutton(self.duplicate_frame, text="replace all", variable=self.replace, value=1).grid(row=0, column=1, sticky=E)
         
         #right corner buttons
 
@@ -75,35 +104,34 @@ class App:
         
         if len(self.itemList) > 0:
         
-            self.newwin = Toplevel()
-            (self.newwin).title('WARNING')
-            (self.newwin).configure(borderwidth=20)
-            (self.newwin).resizable(width=FALSE, height=FALSE)
+            #self.newwin = Toplevel()
+            #(self.newwin).title('WARNING')
+            #(self.newwin).configure(borderwidth=20)
+            #(self.newwin).resizable(width=FALSE, height=FALSE)
+            #
+            #message = "This operation will delete all the existing items. Are you sure you want to continue?"
+            #Label(self.newwin, text=message).grid(row=0, rowspan=3, column=1, columnspan=2, sticky=W)
+            #Button(self.newwin, text='Yes', command= self.newContinued).grid(row=3, column=1, sticky=E)
+            #Button(self.newwin, text='No', command=lambda: (self.newwin).destroy()).grid(row=3, column=2, sticky=W)
+            #
+            #(self.newwin).mainloop()
+            ##(self.newwin).destroy
             
-            message = "This operation will delete all the existing items. Are you sure you want to continue?"
-            Label(self.newwin, text=message).grid(row=0, rowspan=3, column=1, columnspan=2, sticky=W)
-            Button(self.newwin, text='Yes', command= self.newContinued).grid(row=3, column=1, sticky=E)
-            Button(self.newwin, text='No', command=lambda: (self.newwin).destroy()).grid(row=3, column=2, sticky=W)
+            result = tkMessageBox.askquestion("warning", "This operation will delete all the existing items. Are you sure you want to continue?", icon='warning')
             
-            (self.newwin).mainloop()
-            #(self.newwin).destroy
+            if result == 'yes':
+                
+                self.itemList = []
+                self.subitemList = []
+                (self.listbox).delete(0, END)
+                
+                (self.openxmlfile_path).set("")
+                (self.openxmlfile).set("Untitled")
             
         else:
             
             (self.openxmlfile_path).set("")
             (self.openxmlfile).set("Untitled")
-            
-
-    def newContinued(self):
-    
-        self.itemList = []
-        self.subitemList = []
-        (self.listbox).delete(0, END)
-        
-        (self.openxmlfile_path).set("")
-        (self.openxmlfile).set("Untitled")
-        
-        (self.newwin).destroy()
 
     
     def getFilePath(self):
@@ -115,6 +143,44 @@ class App:
         
         (self.item_file).delete(0, END)
         (self.item_file).insert(END, filename)      
+        
+        
+    def onTypeChange(self, *args):
+        
+        #reset google path and transcript labels to be black
+        
+        (self.item_googlePath_label).configure(foreground = "black")
+        (self.item_transcript_label).configure(foreground = "black")
+        
+        letype = self.item_type.get()
+        
+        if letype == "video":
+            
+            #change file path label to "youtube id"
+            
+            (self.filepathlabel).set("Youtube ID #:")
+            
+            #disable google cs path entry 
+            
+            (self.item_googlePath).configure(state='disabled')
+            
+            #set google path label to be grey
+            
+            (self.item_googlePath_label).configure(foreground = "grey")
+            
+        elif letype == "collection":
+            
+            #change file path label to "collection path"
+            
+            (self.filepathlabel).set("Collection Path:")
+            
+            #disable transcript entry 
+            
+            (self.item_transcript).configure(state='disabled')
+            
+            #set transcript label to be grey
+            
+            (self.item_transcript_label).configure(foreground = "grey")
         
         
     def addElmClick(self, order):
@@ -157,7 +223,9 @@ class App:
 
         #create item 'file' label
         
-        item_file_label = Label(self.left_frame, text = "File Path:", justify=LEFT)
+        self.filepathlabel = StringVar(self.left_frame)
+        (self.filepathlabel).set("File Path:")
+        item_file_label = Label(self.left_frame, textvariable = self.filepathlabel, justify=LEFT)
         item_file_label.grid(row=lerow, column=1, sticky=W)
         
         lerow += 1
@@ -169,6 +237,10 @@ class App:
         
         self.option_menu = OptionMenu(self.left_frame, self.item_type, "image", "collection", "video")
         self.option_menu.grid(row=lerow, column=0, sticky=W)
+        
+        #self.option_menu.bind("<<MenuSelect>>", self.onTypeChange)
+        
+        (self.item_type).trace("w", self.onTypeChange)
         
         #create item file entry widget
         
@@ -184,8 +256,8 @@ class App:
         
         #create google CS path label
         
-        item_googlePath_label = Label(self.left_frame, text = "Google CS Path:", justify=LEFT)
-        item_googlePath_label.grid(row=lerow, column=0, columnspan=2, sticky=W)
+        self.item_googlePath_label = Label(self.left_frame, text = "Google CS Path:", justify=LEFT)
+        self.item_googlePath_label.grid(row=lerow, column=0, columnspan=2, sticky=W)
         
         lerow += 1
         
@@ -232,8 +304,8 @@ class App:
         
         #create item transcript label
         
-        item_transcript_label = Label(self.left_frame, text = "Transcript:", justify=LEFT)
-        item_transcript_label.grid(row=lerow, column=0, columnspan=2, sticky=W)
+        self.item_transcript_label = Label(self.left_frame, text = "Transcript:", justify=LEFT)
+        self.item_transcript_label.grid(row=lerow, column=0, columnspan=2, sticky=W)
         
         lerow += 1
         
@@ -1323,7 +1395,7 @@ class App:
         #yes/no to autogenerated description for subitems
         (self.YesNo).set(self.itemList[elemIndex][50])
         
-        print (self.YesNo).get()
+        #print (self.YesNo).get()
         
         if (self.YesNo).get() == 1:
             
@@ -1353,20 +1425,14 @@ class App:
             del self.indexList[original]
         
         
-        #close add and warning windows
-        (self.duplicateWin).destroy()
+        #close add window
         (self.AddItemWindow).destroy()
+
+        #create pop up window
         
-        win = Toplevel()
-        #win.title('WARNING')
-        (win).configure(borderwidth=20)
-        (win).resizable(width=FALSE, height=FALSE)
+        message = "item with id " + self.itemList[self.leindex][10] + " was overwritten" #********can't access that index anymore...
         
-        message = "item with id " + self.itemList[self.leindex][10] + " was overwritten"
-        Label(win, text=message).grid(row=0, rowspan=3, column=1, columnspan=2, sticky=W)
-        Button(win, text='OK', command=win.destroy).grid(row=3, column=1, columnspan=2, sticky=N+S+E+W)
-        
-        win.mainloop()
+        tkMessageBox.showerror("done!", message, icon='info')
         
         #put self.index back to original value
         self.leindex = original
@@ -2122,17 +2188,22 @@ class App:
                             
                             #print "google IDs can not repeat among items!"
                             
-                            self.duplicateWin = Toplevel()
-                            (self.duplicateWin).title('WARNING')
-                            (self.duplicateWin).configure(borderwidth=20)
-                            (self.duplicateWin).resizable(width=FALSE, height=FALSE)
+                            #self.duplicateWin = Toplevel()
+                            #(self.duplicateWin).title('WARNING')
+                            #(self.duplicateWin).configure(borderwidth=20)
+                            #(self.duplicateWin).resizable(width=FALSE, height=FALSE)
+                            #
+                            #message = "The specified google ID already exists for another item. \nDo you want to override the item?"
+                            #Label(self.duplicateWin, text=message).grid(row=0, rowspan=3, column=1, columnspan=2, sticky=W)
+                            #Button(self.duplicateWin, text='Yes', command=lambda: self.overwriteClick(i,order)).grid(row=3, column=1, sticky=E) #, command=win.destroy)
+                            #Button(self.duplicateWin, text='No', command=(self.duplicateWin).destroy).grid(row=3, column=2, sticky=W)
+                            #
+                            #(self.duplicateWin).mainloop()
                             
-                            message = "The specified google ID already exists for another item. \nDo you want to override the item?"
-                            Label(self.duplicateWin, text=message).grid(row=0, rowspan=3, column=1, columnspan=2, sticky=W)
-                            Button(self.duplicateWin, text='Yes', command=lambda: self.overwriteClick(i,order)).grid(row=3, column=1, sticky=E) #, command=win.destroy)
-                            Button(self.duplicateWin, text='No', command=(self.duplicateWin).destroy).grid(row=3, column=2, sticky=W)
+                            result = tkMessageBox.askquestion("duplicate item", "The specified google ID already exists for another item. \nDo you want to override the item?", icon='warning')
                             
-                            (self.duplicateWin).mainloop()
+                            if result == 'yes':
+                                self.overwriteClick(i,order)
                             
                             i = len(self.itemList) 
                             
@@ -2152,17 +2223,22 @@ class App:
                         
                         #print "google IDs can not repeat among items!"
                         
-                        self.duplicateWin = Toplevel()
-                        (self.duplicateWin).title('WARNING')
-                        (self.duplicateWin).configure(borderwidth=20)
-                        (self.duplicateWin).resizable(width=FALSE, height=FALSE)
+                        #self.duplicateWin = Toplevel()
+                        #(self.duplicateWin).title('WARNING')
+                        #(self.duplicateWin).configure(borderwidth=20)
+                        #(self.duplicateWin).resizable(width=FALSE, height=FALSE)
+                        #
+                        #message = "The specified google ID already exists for another item. \nDo you want to override the item?"
+                        #Label(self.duplicateWin, text=message).grid(row=0, rowspan=3, column=1, columnspan=2, sticky=W)
+                        #Button(self.duplicateWin, text='Yes', command=lambda: self.overwriteClick(i,order)).grid(row=3, column=1, sticky=E) #, command=win.destroy)
+                        #Button(self.duplicateWin, text='No', command=(self.duplicateWin).destroy).grid(row=3, column=2, sticky=W)
+                        #
+                        #(self.duplicateWin).mainloop()
                         
-                        message = "The specified google ID already exists for another item. \nDo you want to override the item?"
-                        Label(self.duplicateWin, text=message).grid(row=0, rowspan=3, column=1, columnspan=2, sticky=W)
-                        Button(self.duplicateWin, text='Yes', command=lambda: self.overwriteClick(i,order)).grid(row=3, column=1, sticky=E) #, command=win.destroy)
-                        Button(self.duplicateWin, text='No', command=(self.duplicateWin).destroy).grid(row=3, column=2, sticky=W)
-                        
-                        (self.duplicateWin).mainloop()
+                        result = tkMessageBox.askquestion("duplicate item", "The specified google ID already exists for another item. \nDo you want to override the item?", icon='warning')
+                            
+                        if result == 'yes':
+                            self.overwriteClick(i,order)
                         
                         i = len(self.itemList) 
                         
@@ -2365,13 +2441,27 @@ class App:
     #Function that parses an existing xml file and calls the getIndex function with a tag as the parameter, so to know in what position of the tempList list to save the tag info
     ###
     
-    def openInfoClick(self, order):
+    def openInfoClick(self, order): #**** HAVING BIG PROBLEM WITH WARNING WINDOWS
+        
+        #set up boolean variables
+         
+        isduplicate = False 
+         
+        lefound = False
+         
+        #define itemindex 
+         
+        itemindex = 0
+         
+        #define item type 
          
         item_type = ""
         
         #get xml file name
         
         filename = askopenfilename(title='please select the xml file you wish to open')
+        
+        #have loop that keeps asking user for file name if the filename given is not .xml
         
         wrong = True
         
@@ -2415,7 +2505,7 @@ class App:
                 xmlname = xmlname + "*"
                 (self.openxmlfile).set(xmlname)
 
-        #initialize list to have 49 elements
+        #initialize list to have 50 elements
         
         tempList = []
         subList = []
@@ -2429,14 +2519,14 @@ class App:
             i = i + 1
         
         #parse xml file
-        
-        xmlFilePath = "/Volumes/GoFlex/Cultural_Institute/Scripts/test_files/TKtest22.xml"
     
         lDocument = ET.ElementTree()
         lDocument.parse(filename)
         lRoot = lDocument.getroot()
         
         root = lRoot.getchildren()
+        
+        #initialize integer variable
         
         leindex = 0
         
@@ -2446,11 +2536,13 @@ class App:
         for child in root:
             
             #empty tempList and subList so to reuse them
-            
+        
             tempList = []
             subList = []
             
             i = 0
+        
+            #make temoList into a list with 50 elements
         
             while i < 51:
             
@@ -2458,53 +2550,74 @@ class App:
                 
                 i = i + 1
             
+            #look for tag that is item
+            
             if (child.tag == "item"):
+                
+                #if the identifier tag exists and the contents of it are not empty...
                 
                 if (child.attrib['identifier'] != None) and (child.attrib['identifier'] != ""):
                 
-                    if order == "import":
+                    #if doing import ... check for duplicate item
                 
+                    if order == "import":
+                    
                         i = 0
                     
-                        while i < len(self.itemList):
+                        #go through all of the items in itemList while no duplicates have been found
+                    
+                        while (i < len(self.itemList)) and (not lefound): 
                 
                             if child.attrib['identifier'] == (self.itemList[i][10]):
                                 
-                                #print "google IDs can not repeat among items!"
+                                #duplicate id found
                                 
-                                win = Toplevel()
-                                win.title('WARNING')
-                                (win).configure(borderwidth=20)
-                                (win).resizable(width=FALSE, height=FALSE)
+                                itemindex = i
                                 
-                                message = "The specified google ID already exists for another item. \nDo you want to override the item?"
-                                Label(win, text=message).grid(row=0, rowspan=3, column=1, columnspan=2, sticky=W)
-                                Button(win, text='Yes').grid(row=3, column=1, sticky=E) #, command=win.destroy)
-                                Button(win, text='No', command=win.destroy).grid(row=3, column=2, sticky=W)
+                                #if replaceAll == False: #if replaceAll isn't true, pop up window that says there's a duplicate item
                                 
-                                win.mainloop()
+                                if (self.replace).get() == 1: #replace one item at a time
                                 
-                                if True:
+                                    #pop up window to ask user what to do about duplicate ID
+                                
+                                    msg = "A duplicate item has been encountered, with id " + (self.itemList[i][10]) + ". You have choosen the option of replacing one item at a time. Do you want to do this?"
+                                
+                                    result = tkMessageBox.askquestion("warning", msg, icon='warning')
                                     
-                                    return
+                                    if result == 'no':
+                                      
+                                        (self.replace).set(0)
+                                        
+                                elif (self.replace).get() == 2: #replace al duplicate item at one
+                                    
+                                    #pop up window to ask user what to do about duplicate ID
                                 
-                                else:
+                                    msg = "Are you sure that you want to replace all duplicates?"
                                 
-                                    i = len(self.itemList) 
+                                    result = tkMessageBox.askquestion("warning", msg, icon='warning')
+                                    
+                                    if result == 'no':
+                                      
+                                        (self.replace).set(0)
+
+                                isduplicate = True
+
+                                lefound = True #set lefound to true because a duplicate item was found
                                 
                             i += 1
-                
+                            
+                        lefound = False
+                        
+                    #store id in temp list    
                     leindex = self.getIndex("theid")
                     tempList[leindex] = child.attrib['identifier']
                     itemID = child.attrib['identifier']
                 
             root_tags = child #contains tags within the "item" tag
             
-            for Rchild in root_tags:
+            #go through all the tags within an item
             
-                #if Rchild.tag == "title":
-                #   
-                #    tempList.append(Rchild[0].text)
+            for Rchild in root_tags: 
                 
                 leindex2 = 0
                 
@@ -2712,20 +2825,74 @@ class App:
                     
                         (self.subitemList).append(subList)
                         
-            
+                
             tempList[0] = item_type
             
             tempList[50] = 0 #NO to autogenerated subitem description
-                    
-            (self.itemList).append(tempList)
+            
+            #if user said to replace one or to replace all, and the current item is a duplicate, then...
+            
+            if (((self.replace).get() == 1) or ((self.replace).get() == 2)) and isduplicate:
+                
+                self.itemList[itemindex] = tempList
+                
+                ###
+                #edit info from visible list
+                ###
+                
+                #delete corresponding item from list
+                
+                (self.listbox).delete(itemindex)
+                
+                #re-add item to list
+            
+                string = str((self.itemList[itemindex][0]) + (self.itemList[itemindex][1]))
+                
+                (self.listbox).insert(itemindex, string)
+                
+                #add index to index list
+                
+                self.indexList[itemindex] = itemindex
+            
+            elif not isduplicate:
+                
+                print "no repetition"
+                
+                #no replacements
+                
+                (self.itemList).append(tempList)
     
-            #add info to visible list        
-            string = str((self.itemList[len(self.itemList) - 1][0]) + (self.itemList[len(self.itemList) - 1][1]))
-            (self.listbox).insert(END, string)
+                #add info to visible list        
+                string = str((self.itemList[len(self.itemList) - 1][0]) + (self.itemList[len(self.itemList) - 1][1]))
+                (self.listbox).insert(END, string)
+                
+                #add index to index list
+                
+                (self.indexList).append(len(self.itemList) - 1)
+                
             
-            #add index to index list
+            if (self.replace).get() == 1:
             
-            (self.indexList).append(len(self.itemList) - 1)
+                #pop up that says item was replaced
+                
+                msg = "Item with id " + (self.itemList[itemindex][10]) + " has been replaced."
+                
+                tkMessageBox.showinfo("done!", msg, icon='info')        
+                
+
+            #restart isduplicate to False
+            
+            isduplicate = False
+
+                
+        #pop up that says all repeated items were replaced
+        
+        if (self.replace).get() == 2:
+            
+            msg = "All duplicate items have been replaced."
+                
+            tkMessageBox.showinfo("done!", msg, icon='info')   
+        
     
     
     ###

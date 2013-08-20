@@ -1,7 +1,7 @@
 gci-xmlbuilder
 ==============
 
-A python-based application for creating and editing XMLs for use by the Google Cultural Institute publishing site.  
+A Python-based application for creating and editing XMLs for use by the Google Cultural Institute publishing site.  
   
 Requires Python 2.7.
   
