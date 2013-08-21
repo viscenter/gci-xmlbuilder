@@ -9,3 +9,6 @@ Run by invoking from the command line:
 >  $ python xmlBuilder_TkGUI_3.py  
   
 
+###Current Bugs###
+
+Exporting collections with subitems is dropping some subitem info
