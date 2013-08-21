@@ -1,32 +1,35 @@
 from Tkinter import *                   #import library that enables the creation of the GUI
-#from ttk import *
 from tkFileDialog import *              #import library to be able to ask file name by dialog box
 import tkMessageBox                     #import library that facilitates the creation of dialop pop-up boxes
 import csv                              #import library that faciliates reading and writting csv files
 import xml.etree.cElementTree as ET     #import library that facilitates writting xml files
-from xml.dom import minidom             
-import os
+from xml.dom import minidom             #import library to write xml files in a way that is pleasing to the eye      
+import os                               #import library to be able to go through files of a directory
 import os.path
 import re
-
-tree_columns = ("country", "capital", "currency")
 
 class App:
 
     def __init__(self, master):
         
+        ###Setup main window
         self.RootWindow = master
         
         (self.RootWindow).configure(borderwidth=20)
         
-        self.answer = StringVar()
-        
-        self.itemList = []
-        self.indexList = []
-        self.subitemList = []
+        ###Setup lists to hold the data
+        self.itemList = []      #itemList will store the information of the items to be written to the xml file. Each element is a list. Each list has the information of one item.
+        self.indexList = []     #indexList helps locate where items are stored on the list displayed on the GUI. The index of an element corresponds to the position on the visible
+                                    #list and the number stored corresponds to the index of the item in the itemList. 
+        self.subitemList = []   #subitemList will store the information of the subitems of an item. Each element is a list and each list has the info of a subitem. We can determine
+                                    #to which item a subitem corresponds to by checking the first element of a subitem, which will have the id of it's item parent.
         
         self.leindex = IntVar()
         self.olditemID = StringVar()
+        
+        ###
+        #Display file name of opened file (which is initially "Untitled" but will change as you mess with the GUI)
+        ###
         
         self.openxmlfile = StringVar(self.RootWindow)
         (self.openxmlfile).set("Untitled")
@@ -34,27 +37,18 @@ class App:
         
         self.openxmlfile_path = StringVar(self.RootWindow)
         
+        ###
+        #Create visible list on GUI.
+        ##
+        
         self.listbox = Listbox(self.RootWindow, width=125, height=35, selectmode=MULTIPLE)
         (self.listbox).grid(row=1, column=0, columnspan=3, sticky=N+E+W+S)
         
-        #container = Frame()
-        #container.grid(row=1, column=0, columnspan=3, sticky=N+E+W+S)
-        #
-        ## XXX Sounds like a good support class would be one for constructing
-        ##     a treeview with scrollbars.
-        #self.tree = Treeview(columns=tree_columns, show="headings")
-        #vsb = Scrollbar(orient="vertical", command=self.tree.yview)
-        #hsb = Scrollbar(orient="horizontal", command=self.tree.xview)
-        #self.tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
-        #self.tree.grid(column=0, row=0, sticky='nsew', in_=container)
-        #vsb.grid(column=1, row=0, sticky='ns', in_=container)
-        #hsb.grid(column=0, row=1, sticky='ew', in_=container)
-        #
-        #container.grid_columnconfigure(0, weight=1)
-        #container.grid_rowconfigure(0, weight=1)
+        ###
+        #Add buttons for manipulate items and files.
+        ###
         
-        
-        #left corner buttons
+        #Add left corner buttons (the ones to manipulate items).
         
         self.item_frame = Frame(self.RootWindow)
         (self.item_frame).grid(row=2, column=0, sticky=W)
@@ -72,18 +66,19 @@ class App:
         self.import_info = Button(self.item_frame, text="Import", command=lambda: self.openInfoClick("import"))
         (self.import_info).grid(row=0, column=3, sticky=W)
         
-        #middle buttons
+        #Add middle buttons (to have control on how to deal with duplicate items on import operation).
+        #Currently not functional because ...
         
-        self.duplicate_frame = Frame(self.RootWindow)
-        self.duplicate_frame.grid(row=2, column=1, sticky=E)
+        #self.duplicate_frame = Frame(self.RootWindow)
+        #self.duplicate_frame.grid(row=2, column=1, sticky=E)
         
         #self.replace will store the value of the radio button selection, or 0 if user decides to do nothing when a duplicate on import appears. 0 means "do nothing", 1 means "replace one", and 2 means "replace all"
-        self.replace = IntVar()
-        (self.replace).set(1)
-        Radiobutton(self.duplicate_frame, text="replace one at a time", variable=self.replace, value=0).grid(row=0, column=0, sticky=E)
-        Radiobutton(self.duplicate_frame, text="replace all", variable=self.replace, value=1).grid(row=0, column=1, sticky=E)
+        #self.replace = IntVar()
+        #self.replace.set(1)
+        #Radiobutton(self.duplicate_frame, text="replace one at a time", variable=self.replace, value=0).grid(row=0, column=0, sticky=E)
+        #Radiobutton(self.duplicate_frame, text="replace all", variable=self.replace, value=1).grid(row=0, column=1, sticky=E)
         
-        #right corner buttons
+        #Add right corner buttons (the ones to manipulate files).
 
         self.save_frame = Frame(self.RootWindow)
         (self.save_frame).grid(row=2, column=2, sticky=E)
@@ -100,40 +95,59 @@ class App:
         self.save_as_info = Button(self.save_frame, text="Save As...", command=lambda: self.saveClick("write")) #export information to xml file
         (self.save_as_info).grid(row=0, column=3, sticky=W)
 
+    ##############
+    #function name: newClick
+    #parameters:    self
+    #returns:       None
+    #description:   This function is called with the "new" button on the first window is clicked. It erases the information of the itemList, subitemList,
+    #               indexList and visible GUI list, and it resets the file name displayed on the top of the first window to be "Untitled. But before doing
+    #               this, it checks if these lists are empty and if they're not, it asks the user through a pop up window if they are sure they want to do
+    #               this. Otherwise, the lists are empty, then it'll go ahead to just change the file name on the top to "Untitled", without warning.         
+    ##############
 
     def newClick(self):
         
         if len(self.itemList) > 0:
-        
-            #self.newwin = Toplevel()
-            #(self.newwin).title('WARNING')
-            #(self.newwin).configure(borderwidth=20)
-            #(self.newwin).resizable(width=FALSE, height=FALSE)
-            #
-            #message = "This operation will delete all the existing items. Are you sure you want to continue?"
-            #Label(self.newwin, text=message).grid(row=0, rowspan=3, column=1, columnspan=2, sticky=W)
-            #Button(self.newwin, text='Yes', command= self.newContinued).grid(row=3, column=1, sticky=E)
-            #Button(self.newwin, text='No', command=lambda: (self.newwin).destroy()).grid(row=3, column=2, sticky=W)
-            #
-            #(self.newwin).mainloop()
-            ##(self.newwin).destroy
+            
+            #Show pop up that asks user if they're sure they want to delete all existing items
             
             result = tkMessageBox.askquestion("warning", "This operation will delete all the existing items. Are you sure you want to continue?", icon='warning')
             
+            #If user clicks "yes" ...
+            
             if result == 'yes':
+                
+                #Empty the lists.
                 
                 self.itemList = []
                 self.subitemList = []
+                self.indexList = []
                 (self.listbox).delete(0, END)
+                
+                #Reset file name.
                 
                 (self.openxmlfile_path).set("")
                 (self.openxmlfile).set("Untitled")
             
         else:
             
+            #If user clicks no, then just reset the file name.
+            
             (self.openxmlfile_path).set("")
             (self.openxmlfile).set("Untitled")
 
+    
+    ##############
+    #function name: getFilePath
+    #parameters:    self
+    #returns:       None
+    #description:   This function is called with the "browse" button on the add item window (which appears when the "add" and "edit" buttons are clicked on
+    #               the first window) is clicked. It pops up a dialog window that allows the user to browse through directories in their computer to find a
+    #               folder or file. If the item type selected in the add item window is "collection", then the dialog window will only allow the user to
+    #               select a directory/folder, NOT to select an individual image. If the item type selected is "image", then the dialog window will only
+    #               allow the user to select an individual file (no restrictions on the file type as of now). The browse button will be disabled for the
+    #               "video" option.              
+    ##############
     
     def getFilePath(self):
         
@@ -142,87 +156,153 @@ class App:
         else:
             filename = askopenfilename(title='please select a file')          
         
+        #Empty item file entry widget contents, just incase user wrote on the before.
         (self.item_file).delete(0, END)
+        
+        #Add into item file entry widget the file name that was acquired previously.
         (self.item_file).insert(END, filename)      
         
         
+    ##############
+    #function name: onTypeChange
+    #parameters:    self, *args
+    #returns:       None
+    #description:   This function is called when the value of item type is changed on the add item window (which appears when the "add" and "edit" buttons
+    #               are clicked on the first window). If "video" is selected, then the file path label text is changed to 'Youtube ID', the browse button
+    #               for the file path/collection path/youtube id is disabled, the google path label is set to be color grey, the google path entry contents
+    #               are erased, the google path entry widget is disabled, and the auto-generate checkbox is disabled. If "collection" is selected, the file
+    #               path label text is changed to 'Collection Path', the transcript label's color is set to be grey, the transcript entry contents are erased,
+    #               and the transcript entry widget is disabled. If "image" is selected, then the auto-generate checkbox is disabled. Before checking the
+    #               value of the item type within this function, the settings of labels, entry widgets and buttons that will or have been modified are reset
+    #               to their original values. This means that google path label and transcript label are set to be black as by default, item transcript and
+    #               google path entry widgets are set to be enabled (normal), and the browse button and auto-generate checkbox are enabled as well.
+    ##############        
+        
     def onTypeChange(self, *args):
         
-        #reset google path and transcript labels to be black
+        #Reset google path and transcript labels to be black.
         
         (self.item_googlePath_label).configure(foreground = "black")
         (self.item_transcript_label).configure(foreground = "black")
+        
+        #Reset google path and transcript entries, as well as the browse button and the auto-generate checkbox, to be enabled (normal).
+        (self.item_transcript).configure(state='normal')
+        (self.item_googlePath).configure(state='normal')
+        (self.filebutton).configure(state='normal')
+        (self.checkBox).configure(state='normal')
         
         letype = self.item_type.get()
         
         if letype == "video":
             
-            #change file path label to "youtube id"
+            #Change file path label to "youtube id".
             
             (self.filepathlabel).set("Youtube ID #:")
             
-            #disable google cs path entry 
+            #Disable "browse" button besides file path entry.
+            
+            (self.filebutton).configure(state='disabled')
+            
+            #Set google path label to be grey.
+            
+            (self.item_googlePath_label).configure(foreground = "dim grey")
+            
+            #Empty google path info.
+            
+            (self.item_googlePath).delete(0, END)
+            
+            #Disable google cs path entry.
             
             (self.item_googlePath).configure(state='disabled')
             
-            #set google path label to be grey
+            #Disable auto-generate checkbox.
             
-            (self.item_googlePath_label).configure(foreground = "grey")
+            (self.checkBox).configure(state='disabled')
             
         elif letype == "collection":
             
-            #change file path label to "collection path"
+            #Change file path label to "collection path".
             
             (self.filepathlabel).set("Collection Path:")
             
-            #disable transcript entry 
+            #Set transcript label to be grey.
+            
+            (self.item_transcript_label).configure(foreground = "dim grey")            
+            
+            #Empty transcript info.
+            
+            (self.item_transcript).delete(1.0, END)
+            
+            #Disable transcript entry.
             
             (self.item_transcript).configure(state='disabled')
             
-            #set transcript label to be grey
+        elif letype == "image":
             
-            (self.item_transcript_label).configure(foreground = "grey")
-        
-        
+            (self.checkBox).configure(state='disabled')
+
+
+    ##############
+    #function name: addElmClick
+    #parameters:    self, order
+    #returns:       None
+    #description:   This function is called when the "add" or "edit" buttons are clicked on the first window). This function builds the add item window
+    #               by adding many entry widgets corresponding to different information of an item, as well as labels and buttons. This function also
+    #               has a couple of function calls. For example, the browse button created here, when clicked, called the function getFilePath(). When
+    #               the item type value is changed with the option menu created for it, the function onTypeChange() is called. When the import button
+    #               is clicked, the function importCSVClick() is called. When the add (when add is selected in first window) or update (when edit is
+    #               selected in first window) button is clicked, the checkForErrors() function is called.
+    #
+    ##############  
+
     def addElmClick(self, order):
         
+        #order is either "add" or "edit". The functionality of this function slightly changes depending on the value of order.
+        
+        #If order is "edit", then check to see if the amount of selected items in the visible GUI list is not 1 (it's 0 or greater than 1).
         if order == "edit":
         
             selected = (self.listbox).curselection()
             
             if len(selected) != 1:
                 
-                return
+                return      #If amount of selected items isn't 1, then exit the function and, thus, do nothing.
+        
+        #Create window for adding/editing items.
         
         self.AddItemWindow = Tk()
         
         (self.AddItemWindow).title("Add Item...")
         
-        #(self.AddItemWindow).configure(background='grey')
-        
         (self.AddItemWindow).configure(borderwidth=20)
         
         (self.AddItemWindow).resizable(width=FALSE, height=FALSE)
         
+        #Start adding labels, entry widgets and buttons to the add item window.
+        
         ###
-        #left side
+        #Add labels/entries/buttons to the left side of add item window.
         ###
         
-        #create left container
+        #Create left container.
         
         self.left_frame = Frame(self.AddItemWindow)
         self.left_frame.grid(row=0, column=0, sticky=W)
         
-        #keep a count of rows
+        #Keep a count of rows (using lerow) to determine positioning of widgets. This is done so that it would be easier to position widgets
+        #(no great importance and keeping track of numbering), as well as facilitating the positioning of new widgets or of old widgets onces
+        #widgets are removed from the window. lerow will be used to position widgets into different rows of a grid structure.
+        #More information about how grid work in tkinter is in the following link: http://effbot.org/tkinterbook/grid.htm
+        #Ideally GUI code could be moved to a separate python file to help with organization
         
         lerow = 0
         
-        #create item type label
+        #Create item type label.
         
         item_type_label = Label(self.left_frame, text = "Type:", justify=LEFT)
         item_type_label.grid(row=lerow, column=0, sticky=W)
 
-        #create item 'file' label
+        #Create item file label.
         
         self.filepathlabel = StringVar(self.left_frame)
         (self.filepathlabel).set("File Path:")
@@ -231,236 +311,234 @@ class App:
         
         lerow += 1
         
-        #create item type option menu
+        #Create item type option menu.
         
-        self.item_type = StringVar(self.left_frame)
-        (self.item_type).set("image") # default value
+        self.item_type = StringVar(self.left_frame)     # Define variable that will hold value of the selection of the option menu for item type.
+        (self.item_type).set("image")                   # Set variable's default value to "image".
         
         self.option_menu = OptionMenu(self.left_frame, self.item_type, "image", "collection", "video")
         self.option_menu.grid(row=lerow, column=0, sticky=W)
         
-        #self.option_menu.bind("<<MenuSelect>>", self.onTypeChange)
-        
+        #Trace the variable item_type. If the variable's value changes, then the function onTypeChange() is called.
         (self.item_type).trace("w", self.onTypeChange)
         
-        #create item file entry widget
+        #Create item file entry widget.
         
         self.item_file = Entry(self.left_frame, width=20)
         self.item_file.grid(row=lerow, column=1, columnspan=2, sticky=W)
         
-        #create item file browse button
+        #Create item file browse button.
         
-        filebutton = Button(self.left_frame, text='Browse', command=self.getFilePath)
-        filebutton.grid(row=lerow, column=1, columnspan=2, sticky=E)
+        self.filebutton = Button(self.left_frame, text='Browse', command=self.getFilePath)
+        (self.filebutton).grid(row=lerow, column=1, columnspan=2, sticky=E)
         
         lerow += 1
         
-        #create google CS path label
+        #Create google CS path label.
         
         self.item_googlePath_label = Label(self.left_frame, text = "Google CS Path:", justify=LEFT)
         self.item_googlePath_label.grid(row=lerow, column=0, columnspan=2, sticky=W)
         
         lerow += 1
         
-        #create google CS path entry widget
+        #Create google CS path entry widget.
         
         self.item_googlePath = Entry(self.left_frame, width=60)
         self.item_googlePath.grid(row=lerow, column=0, columnspan=2, sticky=W)
         
         lerow += 1
         
-        #create item title label
+        #Create item title label.
         
         item_title_label = Label(self.left_frame, text = "Title:", justify=LEFT)
         item_title_label.grid(row=lerow, column=0, columnspan=2, sticky=W)
         
         lerow += 1
         
-        #create title entry widget
+        #Create title entry widget.
         
         self.item_title = Entry(self.left_frame, width=60)
         self.item_title.grid(row=lerow, column=0, columnspan=2, sticky=W)
         
         lerow += 1
         
-        #create item description label
+        #Create item description label.
         
         item_description_label = Label(self.left_frame, text = "Description:", justify=LEFT)
         item_description_label.grid(row=lerow, column=0, columnspan=2, sticky=W)
         
         lerow += 1
         
-        #create item description entry widget
+        #Create item description entry widget.
         
         self.item_description = Text(self.left_frame, wrap=WORD, width=69, height=5, borderwidth=2, relief=SUNKEN)
         self.item_description.grid(row=lerow, rowspan=2, columnspan=2, sticky=W)
         
         lerow += 2
           
-        self.YesNo = IntVar()  
-        self.checkBox = Checkbutton(self.left_frame, text="Auto-generate folio description for subitems?", variable=self.YesNo, onvalue=1, offvalue=0)
+        #Create checkbox for auto-generating folio descriptions for subitems of a collection.  
+          
+        #****NOTE: checkbox isn't working as expected. The value of YesNo is not changing when the checkbox is selected or deselected.
+          
+        self.YesNo = BooleanVar()
+        #(self.YesNo).set(0)
+        self.checkBox = Checkbutton(self.left_frame, text="Auto-generate folio description for subitems?", variable=self.YesNo, onvalue = 1, offvalue = 0)
         self.checkBox.grid(row=lerow, column=0, columnspan=2, sticky=W)
+        
+        #Disable auto-generate checkbox initially because "image" is the default value for item_type and for image the checkbox must be disabled. The
+        #onTypeChange() function is only called when the value of item_type changes, so it isn't called at the start of the window.
+        (self.checkBox).configure(state='disabled')
 
         lerow += 1
         
-        #create item transcript label
+        #Create item transcript label.
         
         self.item_transcript_label = Label(self.left_frame, text = "Transcript:", justify=LEFT)
         self.item_transcript_label.grid(row=lerow, column=0, columnspan=2, sticky=W)
         
         lerow += 1
         
-        #create item transcript entry widget
+        #Create item transcript entry widget.
         
         self.item_transcript = Text(self.left_frame, wrap=WORD, width=69, height=5, borderwidth=2, relief=SUNKEN)
         self.item_transcript.grid(row=lerow, rowspan=2, column=0, columnspan=2, sticky=W)
         
         lerow +=2
         
-        #create item disclaimer label
+        #Create item disclaimer label.
         
         item_disclamer_label = Label(self.left_frame, text = "Disclaimer:", justify=LEFT)
         item_disclamer_label.grid(row=lerow, column=0, columnspan=2, sticky=W)
         
         lerow += 1
         
-        #create item disclamer entry widget
+        #Create item disclamer entry widget.
         
         self.item_disclaimer = Text(self.left_frame, wrap=WORD, width=69, height=5, borderwidth=2, relief=SUNKEN)
         self.item_disclaimer.grid(row=lerow, rowspan=2, column=0, columnspan=2, sticky=W)
         
         lerow +=2
         
-        #create item 'Original Source' label
+        #Create item original source label.
         
         item_originalSource_label = Label(self.left_frame, text = "Original Source:", justify=LEFT)
         item_originalSource_label.grid(row=lerow, column=0, sticky=W)
         
-        #create item 'original source URL' label
+        #Create item original source URL label.
         
         item_oriURL_label = Label(self.left_frame, text = "URL:", justify=LEFT)
         item_oriURL_label.grid(row=lerow, column=1, sticky=W)
         
         lerow += 1
         
-        #create item original source entry widget
+        #Create item original source entry widget.
         
         self.item_originalSource = Entry(self.left_frame, width=30)
         self.item_originalSource.grid(row=lerow, column=0, sticky=W)
      
-        #create item URL entry widget
+        #Create item URL entry widget.
         
         self.item_oriURL = Entry(self.left_frame, width=30)
         self.item_oriURL.grid(row=lerow, column=1, sticky=W)
         
         lerow += 1
         
-        #create item 'license' label
+        #Create item license label.
         
         item_license_label = Label(self.left_frame, text = "License:", justify=LEFT)
         item_license_label.grid(row=lerow, column=0, sticky=W)
         
-        #create item 'license URL' label
+        #Create item license URL label.
         
         item_liURL_label = Label(self.left_frame, text = "URL:", justify=LEFT)
         item_liURL_label.grid(row=lerow, column=1, sticky=W)
         
         lerow += 1
         
-        #create item license entry widget
+        #Create item license entry widget.
         
         self.item_license = Entry(self.left_frame, width=30)
         self.item_license.grid(row=lerow, column=0, sticky=W)
         
-        #create item URL entry widget
+        #Create item URL entry widget.
         
         self.item_liURL = Entry(self.left_frame, width=30)
         self.item_liURL.grid(row=lerow, column=1, sticky=W)
         
         lerow += 1
         
-        #create item 'copyright' label
+        #Create item copyright label.
         
         item_copyright_label = Label(self.left_frame, text = "Copyright:", justify=LEFT)
         item_copyright_label.grid(row=lerow, column=0, sticky=W)
         
-        #create item permission label
+        #Create item permission label.
         
         item_permission_label = Label(self.left_frame, text = "Permission/Usage:", justify=LEFT)
         item_permission_label.grid(row=lerow, column=1, sticky=W)
         
         lerow += 1
         
-        #create item copyright entry widget
+        #Create item copyright entry widget.
         
         self.item_copyright = Entry(self.left_frame, width=30)
         self.item_copyright.grid(row=lerow, column=0, sticky=W)
         
-        #create item permission entry widget
+        #Create item permission entry widget.
         
         self.item_permission = Entry(self.left_frame, width=30)
         self.item_permission.grid(row=lerow, column=1, sticky=W)
         
         lerow += 1
-
-        #create empty labels for spacing
         
-        #empty_label1 = Label(self.left_frame, text = "")
-        #empty_label1.grid(row=lerow, column=0, columnspan=2, sticky=W)
-        
-        #lerow += 1
-        
-        #empty_label2 = Label(self.left_frame, text = "")
-        #empty_label2.grid(row=lerow, column=0, columnspan=2, sticky=W)
-        
-        #lerow += 1
-        
-        #create import button
+        #Create import button.
         
         self.import_csv= Button(self.left_frame, text="Import CSV", command=self.importCSVClick)
         self.import_csv.grid(row=lerow, column=0, sticky=W)
         
         ###
-        #right side
+        #Add labels/entries/buttons to the right side of add item window.
         ###
         
-        #create right container
+        #Create right container.
         
         self.right_frame = Frame(self.AddItemWindow)
         self.right_frame.grid(row=0, column=1, sticky=W)
         
-        lerow = 0
+        #Reset the lerow counter to 0, so that widgets are added starting on row 1 of the grid. This time widgets will be placed on column 2.
         
-        #create google id label
+        lerow = 0   
+        
+        #Create google id label.
         
         item_googleID_label = Label(self.right_frame, text = "Google Item ID:", justify=LEFT)
         item_googleID_label.grid(row=lerow, column=0, sticky=W)
         
         lerow += 1
         
-        #create google id entry widget
+        #Create google id entry widget.
         
         self.item_googleID = Entry(self.right_frame, width=60)
         self.item_googleID.grid(row=lerow, column=0, sticky=W)
         
         lerow += 1
         
-        #type, language, format frame
+        #Create frame that will contain the type, language, and format labels/widgets.
         
         self.TLF_frame = Frame(self.right_frame)
         self.TLF_frame.grid(row=lerow, column=0, sticky=W)
         
-        #create file type label
+        #Create file type label.
         
         item_fileType_label = Label(self.TLF_frame, text = "Type:", justify=LEFT)
         item_fileType_label.grid(row=0, column=0, sticky=W)
         
-        #create file type entry widget
+        #Create file type entry widget.
         
         self.item_fileType = Entry(self.TLF_frame, width=20)
         self.item_fileType.grid(row=1, column=0, sticky=W)
         
-        #empty space between filetype and language
+        #Create empty space between filetype and language. This is simply for looks.
         
         empty_label1 = Label(self.TLF_frame, text = "        ")
         empty_label1.grid(row=0, column=1, sticky=W)
@@ -468,21 +546,20 @@ class App:
         empty_label1 = Label(self.TLF_frame, text = "        ")
         empty_label1.grid(row=1, column=1, sticky=W)
         
-        #create language label
+        #Create language label.
         
         item_language_label = Label(self.TLF_frame, text = "Language:", justify=LEFT)
         item_language_label.grid(row=0, column=2, sticky=N+S+W+E)
         
-        #create language option menu widget
+        #Create language option menu widget.
         
         self.item_language = StringVar(self.TLF_frame)
-        (self.item_language).set("en") # default value
+        (self.item_language).set("en")      # 'en' will be the default value or language.
         
         self.option_menu2 = OptionMenu(self.TLF_frame, self.item_language, "en", "la", "af", "sq", "ar", "az", "eu", "bn", "be", "bg", "ca", "zh-CN", "zh-TW", "hr", "cs", "da", "nl", "eo", "et", "tl", "fi", "fr", "gl", "ka", "de", "el", "gu", "ht", "iw", "hi", "hu", "is", "id", "ga", "it", "ja", "kn", "ko", "lv", "lt", "mk", "ms", "mt", "no", "fa", "pl", "pt", "ro", "ru", "sr", "sk", "sl", "es", "sw", "sv", "ta", "te", "th", "tr", "uk", "ur", "vi", "cy", "yi")
-        (self.option_menu2).config(width=1) #not resizing
         self.option_menu2.grid(row=1, column=2, sticky=N+S+W+E)
         
-        #empty space between language and format
+        #Create empty space between language and format.
         
         empty_label1 = Label(self.TLF_frame, text = "       ")
         empty_label1.grid(row=0, column=3, sticky=W)
@@ -490,71 +567,71 @@ class App:
         empty_label1 = Label(self.TLF_frame, text = "       ")
         empty_label1.grid(row=1, column=3, sticky=W)
         
-        #create format label
+        #Create format label.
         
         item_format_label = Label(self.TLF_frame, text = "Format:", justify=LEFT)
         item_format_label.grid(row=0, column=4, sticky=W)
         
-        #create format entry widget
+        #Create format entry widget.
         
         self.item_format = Entry(self.TLF_frame, width=20)
         self.item_format.grid(row=1, column=4, sticky=W)
         
         lerow += 1
         
-        #provenance, subject, creator frame
+        #Create frame that will contain provenance, subject, and creator labels/widgets.
         
         self.PSC_frame = Frame(self.right_frame)
         self.PSC_frame.grid(row=lerow, column=0, sticky=W)
         
-        #create provenance label
+        #Create provenance label.
         
         item_provenance_label = Label(self.PSC_frame, text = "Provenance:", justify=LEFT)
         item_provenance_label.grid(row=0, column=0, sticky=W)
         
-        #create provenance entry widget
+        #Create provenance entry widget.
         
         self.item_provenance = Entry(self.PSC_frame, width=19)
         self.item_provenance.grid(row=1, column=0, sticky=W)
         
-        #create subject label
+        #Create subject label.
         
         item_subject_label = Label(self.PSC_frame, text = "Subject:", justify=LEFT)
         item_subject_label.grid(row=0, column=1, sticky=W)
         
-        #create subject entry widget
+        #Create subject entry widget.
         
         self.item_subject = Entry(self.PSC_frame, width=19)
         self.item_subject.grid(row=1, column=1, sticky=W)
         
-        #create creator label
+        #Create creator label.
         
         item_creator_label = Label(self.PSC_frame, text = "Creator:", justify=LEFT)
         item_creator_label.grid(row=0, column=2, sticky=W)
         
-        #create creator entry widget
+        #Create creator entry widget.
         
         self.item_creator = Entry(self.PSC_frame, width=19)
         self.item_creator.grid(row=1, column=2, sticky=W)
         
         lerow += 1
         
-        #contributor, publisher frame
+        #Create frame that will contain contributor and publisher labels/widgets.
         
         self.CP_frame = Frame(self.right_frame)
         self.CP_frame.grid(row=lerow, column=0, sticky=W)
         
-        #create contributor label
+        #Create contributor label.
         
         item_contributor_label = Label(self.CP_frame, text = "Contributor:", justify=LEFT)
         item_contributor_label.grid(row=0, column=0, sticky=W)
         
-        #create contributor entry widget
+        #Create contributor entry widget.
         
         self.item_contributor = Entry(self.CP_frame, width=27)
         self.item_contributor.grid(row=1, column=0, sticky=W)
         
-        #empty space between contributor and publisher
+        #Create empty space between contributor and publisher.
         
         empty_label1 = Label(self.CP_frame, text = "       ")
         empty_label1.grid(row=0, column=1, sticky=W)
@@ -562,55 +639,55 @@ class App:
         empty_label1 = Label(self.CP_frame, text = "       ")
         empty_label1.grid(row=1, column=1, sticky=W)
         
-        #create publisher label
+        #Create publisher label.
         
         item_publisher_label = Label(self.CP_frame, text = "Publisher:", justify=LEFT)
         item_publisher_label.grid(row=0, column=2, sticky=W)
         
-        #create publisher entry widget
+        #Create publisher entry widget.
         
         self.item_publisher = Entry(self.CP_frame, width=27)
         self.item_publisher.grid(row=1, column=2, sticky=W)
         
         lerow += 1
         
-        #create identifier label
+        #Create identifier label.
         
         item_identifier_label = Label(self.right_frame, text = "Archival Identifier:", justify=LEFT)
         item_identifier_label.grid(row=lerow, column=0, sticky=W)
         
         lerow += 1
         
-        #create identifier entry widget
+        #Create identifier entry widget.
         
         self.item_identifier = Entry(self.right_frame, width=60)
         self.item_identifier.grid(row=lerow, column=0, sticky=W)
         
         lerow += 1
         
-        #create "primary location and date" label
+        #Create "primary location and date" label.
         
         item_primary_label = Label(self.right_frame, text = "Primary Location and Date:", justify=LEFT)
         item_primary_label.grid(row=lerow, column=0, sticky=W)
         
         lerow += 1
         
-        #primary location frame
+        #Create frame that will contain the primary location labels/widgets.
         
         self.PriLoc_frame = Frame(self.right_frame)
         self.PriLoc_frame.grid(row=lerow, column=0, sticky=W)     
         
-        #create longitude label
+        #Create longitude label.
         
         item_primaryLongitude_label = Label(self.PriLoc_frame, text = "Longitude:", justify=LEFT)
         item_primaryLongitude_label.grid(row=0, column=0, sticky=W)
         
-        #create longitude entry widget
+        #Create longitude entry widget.
         
         self.item_primaryLongitude = Entry(self.PriLoc_frame, width=14)
         self.item_primaryLongitude.grid(row=1, column=0, sticky=W)
         
-        #empty space between longitude and latitude
+        #Create empty space between longitude and latitude.
         
         empty_label1 = Label(self.PriLoc_frame, text = "   ")
         empty_label1.grid(row=0, column=1, sticky=W)
@@ -618,17 +695,17 @@ class App:
         empty_label1 = Label(self.PriLoc_frame, text = "   ")
         empty_label1.grid(row=1, column=1, sticky=W)
         
-        #create latitude label
+        #Create latitude label.
         
         item_primaryLatitude_label = Label(self.PriLoc_frame, text = "Latitude:", justify=LEFT)
         item_primaryLatitude_label.grid(row=0, column=2, sticky=W)
         
-        #create latitude entry widget
+        #Create latitude entry widget.
         
         self.item_primaryLatitude = Entry(self.PriLoc_frame, width=14)
         self.item_primaryLatitude.grid(row=1, column=2, sticky=W)
         
-        #empty space between latitude and place
+        #Empty space between latitude and place.
         
         empty_label1 = Label(self.PriLoc_frame, text = "  ")
         empty_label1.grid(row=0, column=3, sticky=W)
@@ -636,130 +713,130 @@ class App:
         empty_label1 = Label(self.PriLoc_frame, text = "  ")
         empty_label1.grid(row=1, column=3, sticky=W)
         
-        #create place label 
+        #Create place label. 
         
         item_primaryPlace_label = Label(self.PriLoc_frame, text = "Place:", justify=LEFT)
         item_primaryPlace_label.grid(row=0, column=4, sticky=W)
         
-        #create place entry widget
+        #Create place entry widget.
         
         self.item_primaryPlace = Entry(self.PriLoc_frame, width=25)
         self.item_primaryPlace.grid(row=1, column=4, sticky=W)
         
-        ##########
+        #Time to add entry widgets for the locations and dates!
         
         lerow += 1
         
-        #primary date frame
+        #Create frame that will contain primary date label/widget.
         
         self.PriDate_frame = Frame(self.right_frame)
         self.PriDate_frame.grid(row=lerow, column=0, sticky=W)   
         
-        #create start date label 
+        #Create start date label. 
         
         item_primStartDate_label = Label(self.PriDate_frame, text = "Start Date:", justify=LEFT)
         item_primStartDate_label.grid(row=0, column=0, sticky=W)
         
-        #empty space between start label and start day
+        #Create empty space between start label and start day.
         
         empty_label1 = Label(self.PriDate_frame, text = "  ")
         empty_label1.grid(row=0, column=1, sticky=W)
         
-        #create start date day entry widget
+        #Create start date day entry widget.
         
         self.item_primStartDay = Entry(self.PriDate_frame, width=3)
         self.item_primStartDay.grid(row=0, column=2, sticky=W)
         
-        #empty space between start day and start month
+        #Create empty space between start day and start month.
         
         empty_label1 = Label(self.PriDate_frame, text = "  ")
         empty_label1.grid(row=0, column=3, sticky=W)
         
-        #create start date month entry widget
+        #Create start date month entry widget.
         
         self.item_primStartMonth = Entry(self.PriDate_frame, width=3)
         self.item_primStartMonth.grid(row=0, column=4, sticky=W)
         
-        #empty space between start month and start year
+        #Create empty space between start month and start year.
         
         empty_label1 = Label(self.PriDate_frame, text = "  ")
         empty_label1.grid(row=0, column=5, sticky=W)
         
-        #create start date year entry widget 
+        #Create start date year entry widget. 
         
         self.item_primStartYear = Entry(self.PriDate_frame, width=5)
         self.item_primStartYear.grid(row=0, column=6, sticky=W)
         
-        #empty space between start year and end label
+        #Create empty space between start year and end label.
         
         empty_label1 = Label(self.PriDate_frame, text = "  ")
         empty_label1.grid(row=0, column=7, sticky=W)
         
-        #create end date label 
+        #Create end date label. 
         
         item_primEndDate_label = Label(self.PriDate_frame, text = "End Date:", justify=LEFT)
         item_primEndDate_label.grid(row=0, column=8, sticky=W)
         
-        #empty space between end label and end day
+        #Create empty space between end label and end day.
         
         empty_label1 = Label(self.PriDate_frame, text = "  ")
         empty_label1.grid(row=0, column=9, sticky=W)
         
-        #create end date day entry widget
+        #Create end date day entry widget.
         
         self.item_primEndDay = Entry(self.PriDate_frame, width=3)
         self.item_primEndDay.grid(row=0, column=10, sticky=W)
         
-        #empty space between end day and end month
+        #Create empty space between end day and end month.
         
         empty_label1 = Label(self.PriDate_frame, text = "  ")
         empty_label1.grid(row=0, column=11, sticky=W)
         
-        #create end date month entry widget
+        #Create end date month entry widget.
         
         self.item_primEndMonth = Entry(self.PriDate_frame, width=3)
         self.item_primEndMonth.grid(row=0, column=12, sticky=W)
         
-        #empty space between end month and end year
+        #Create empty space between end month and end year.
         
         empty_label1 = Label(self.PriDate_frame, text = "  ")
         empty_label1.grid(row=0, column=13, sticky=W)
         
-        #create end date year entry widget 
+        #Create end date year entry widget. 
         
         self.item_primEndYear = Entry(self.PriDate_frame, width=5)
         self.item_primEndYear.grid(row=0, column=14, sticky=W)
         
         ###
-        #add dd, mm and yyyy labels
+        #Add dd, mm and yyyy labels
         ###  
         
-        #start dd label
+        #Add start dd label.
         
         dd_label = Label(self.PriDate_frame, text = "dd", foreground = "grey", justify=LEFT)
         dd_label.grid(row=1, column=2, sticky=W)
         
-        #start mm label
+        #Add start mm label.
         
         mm_label = Label(self.PriDate_frame, text = "mm", foreground = "grey", justify=LEFT)
         mm_label.grid(row=1, column=4, sticky=W)
         
-        #start yyyy label
+        #Add start yyyy label.
         
         yyyy_label = Label(self.PriDate_frame, text = "yyyy", foreground = "grey", justify=LEFT)
         yyyy_label.grid(row=1, column=6, sticky=W)
         
-        #end dd label
+        #Add end dd label.
         
         dd_label = Label(self.PriDate_frame, text = "dd", foreground = "grey", justify=LEFT)
         dd_label.grid(row=1, column=10, sticky=W)
         
-        #end mm label
+        #Add end mm label. 
         
         mm_label = Label(self.PriDate_frame, text = "mm", foreground = "grey", justify=LEFT)
         mm_label.grid(row=1, column=12, sticky=W)
         
-        #end yyyy label
+        #Add end yyyy label.
         
         yyyy_label = Label(self.PriDate_frame, text = "yyyy", foreground = "grey", justify=LEFT)
         yyyy_label.grid(row=1, column=14, sticky=W)
@@ -767,29 +844,29 @@ class App:
         
         lerow += 1
         
-        #create "created location and date" label
+        #Create "created location and date" label.
         
         item_created_label = Label(self.right_frame, text = "Location and Date Created:", justify=LEFT)
         item_created_label.grid(row=lerow, column=0, sticky=W)
         
         lerow += 1
         
-        #created location frame
+        #Created location frame.
         
         self.CreLoc_frame = Frame(self.right_frame)
         self.CreLoc_frame.grid(row=lerow, column=0, sticky=W)     
         
-        #create longitude label
+        #Create longitude label.
         
         item_createdLongitude_label = Label(self.CreLoc_frame, text = "Longitude:", justify=LEFT)
         item_createdLongitude_label.grid(row=0, column=0, sticky=W)
         
-        #create longitude entry widget
+        #Create longitude entry widget.
         
         self.item_createdLongitude = Entry(self.CreLoc_frame, width=14)
         self.item_createdLongitude.grid(row=1, column=0, sticky=W)
         
-        #empty space between longitude and latitude
+        #Create empty space between longitude and latitude.
         
         empty_label1 = Label(self.CreLoc_frame, text = "   ")
         empty_label1.grid(row=0, column=1, sticky=W)
@@ -797,17 +874,17 @@ class App:
         empty_label1 = Label(self.CreLoc_frame, text = "   ")
         empty_label1.grid(row=1, column=1, sticky=W)
         
-        #create latitude label
+        #Create latitude label.
         
         item_createdLatitude_label = Label(self.CreLoc_frame, text = "Latitude:", justify=LEFT)
         item_createdLatitude_label.grid(row=0, column=2, sticky=W)
         
-        #create latitude entry widget
+        #Create latitude entry widget.
         
         self.item_createdLatitude = Entry(self.CreLoc_frame, width=14)
         self.item_createdLatitude.grid(row=1, column=2, sticky=W)
         
-        #empty space between latitude and place
+        #Create empty space between latitude and place.
         
         empty_label1 = Label(self.CreLoc_frame, text = "  ")
         empty_label1.grid(row=0, column=3, sticky=W)
@@ -815,159 +892,159 @@ class App:
         empty_label1 = Label(self.CreLoc_frame, text = "  ")
         empty_label1.grid(row=1, column=3, sticky=W)
         
-        #create place label 
+        #Create place label. 
         
         item_createdPlace_label = Label(self.CreLoc_frame, text = "Place:", justify=LEFT)
         item_createdPlace_label.grid(row=0, column=4, sticky=W)
         
-        #create place entry widget
+        #Create place entry widget.
         
         self.item_createdPlace = Entry(self.CreLoc_frame, width=25)
         self.item_createdPlace.grid(row=1, column=4, sticky=W)
         
-        ##########
+        #Time to add dates if created location.
         
         lerow += 1
         
-        #created date frame
+        #Created date frame.
         
         self.CreDate_frame = Frame(self.right_frame)
         self.CreDate_frame.grid(row=lerow, column=0, sticky=W)   
         
-        #create start date label 
+        #Create start date label. 
         
         item_creStartDate_label = Label(self.CreDate_frame, text = "Start Date:", justify=LEFT)
         item_creStartDate_label.grid(row=0, column=0, sticky=W)
         
-        #empty space between start label and start day
+        #Create empty space between start label and start day.
         
         empty_label1 = Label(self.CreDate_frame, text = "  ")
         empty_label1.grid(row=0, column=1, sticky=W)
         
-        #create start date day entry widget
+        #Create start date day entry widget.
         
         self.item_creStartDay = Entry(self.CreDate_frame, width=3)
         self.item_creStartDay.grid(row=0, column=2, sticky=W)
         
-        #empty space between start day and start month
+        #Create empty space between start day and start month.
         
         empty_label1 = Label(self.CreDate_frame, text = "  ")
         empty_label1.grid(row=0, column=3, sticky=W)
         
-        #create start date month entry widget
+        #Create start date month entry widget.
         
         self.item_creStartMonth = Entry(self.CreDate_frame, width=3)
         self.item_creStartMonth.grid(row=0, column=4, sticky=W)
         
-        #empty space between start month and start year
+        #Create empty space between start month and start year.
         
         empty_label1 = Label(self.CreDate_frame, text = "  ")
         empty_label1.grid(row=0, column=5, sticky=W)
         
-        #create start date year entry widget 
+        #Create start date year entry widget. 
         
         self.item_creStartYear = Entry(self.CreDate_frame, width=5)
         self.item_creStartYear.grid(row=0, column=6, sticky=W)
         
-        #empty space between start year and end label
+        #Create empty space between start year and end label.
         
         empty_label1 = Label(self.CreDate_frame, text = "  ")
         empty_label1.grid(row=0, column=7, sticky=W)
         
-        #create end date label 
+        #Create end date label. 
         
         item_creEndDate_label = Label(self.CreDate_frame, text = "End Date:", justify=LEFT)
         item_creEndDate_label.grid(row=0, column=8, sticky=W)
         
-        #empty space between end label and end day
+        #Create empty space between end label and end day.
         
         empty_label1 = Label(self.CreDate_frame, text = "  ")
         empty_label1.grid(row=0, column=9, sticky=W)
         
-        #create end date day entry widget
+        #Create end date day entry widget.
         
         self.item_creEndDay = Entry(self.CreDate_frame, width=3)
         self.item_creEndDay.grid(row=0, column=10, sticky=W)
         
-        #empty space between end day and end month
+        #Create empty space between end day and end month.
         
         empty_label1 = Label(self.CreDate_frame, text = "  ")
         empty_label1.grid(row=0, column=11, sticky=W)
         
-        #create end date month entry widget
+        #Create end date month entry widget.
         
         self.item_creEndMonth = Entry(self.CreDate_frame, width=3)
         self.item_creEndMonth.grid(row=0, column=12, sticky=W)
         
-        #empty space between end month and end year
+        #Create empty space between end month and end year.
         
         empty_label1 = Label(self.CreDate_frame, text = "  ")
         empty_label1.grid(row=0, column=13, sticky=W)
         
-        #create end date year entry widget 
+        #Create end date year entry widget. 
         
         self.item_creEndYear = Entry(self.CreDate_frame, width=5)
         self.item_creEndYear.grid(row=0, column=14, sticky=W)
         
         ###
-        #add dd, mm and yyyy labels
+        #Add dd, mm and yyyy labels.
         ###  
         
-        #start dd label
+        #Add start dd label.
         
         dd_label = Label(self.CreDate_frame, text = "dd", foreground = "grey", justify=LEFT)
         dd_label.grid(row=1, column=2, sticky=W)
         
-        #start mm label
+        #Add start mm label.
         
         mm_label = Label(self.CreDate_frame, text = "mm", foreground = "grey", justify=LEFT)
         mm_label.grid(row=1, column=4, sticky=W)
         
-        #start yyyy label
+        #Add start yyyy label.
         
         yyyy_label = Label(self.CreDate_frame, text = "yyyy", foreground = "grey", justify=LEFT)
         yyyy_label.grid(row=1, column=6, sticky=W)
         
-        #end dd label
+        #Add end dd label.
         
         dd_label = Label(self.CreDate_frame, text = "dd", foreground = "grey", justify=LEFT)
         dd_label.grid(row=1, column=10, sticky=W)
         
-        #end mm label
+        #Add end mm label.
         
         mm_label = Label(self.CreDate_frame, text = "mm", foreground = "grey", justify=LEFT)
         mm_label.grid(row=1, column=12, sticky=W)
         
-        #end yyyy label
+        #Add end yyyy label.
         
         yyyy_label = Label(self.CreDate_frame, text = "yyyy", foreground = "grey", justify=LEFT)
         yyyy_label.grid(row=1, column=14, sticky=W)
         
         lerow += 1
         
-        #published "published location and date" label
+        #Create published location and date label
         
         item_published_label = Label(self.right_frame, text = "Location and Date Published:", justify=LEFT)
         item_published_label.grid(row=lerow, column=0, sticky=W)
         
         lerow += 1
         
-        #published location frame
+        #Create frame that will contain the published location labels/widgets.
         
         self.PubLoc_frame = Frame(self.right_frame)
         self.PubLoc_frame.grid(row=lerow, column=0, sticky=W)     
         
-        #published longitude label
+        #Create published longitude label.
         
         item_publishedLongitude_label = Label(self.PubLoc_frame, text = "Longitude:", justify=LEFT)
         item_publishedLongitude_label.grid(row=0, column=0, sticky=W)
         
-        #published longitude entry widget
+        #Createpublished longitude entry widget.
         
         self.item_publishedLongitude = Entry(self.PubLoc_frame, width=14)
         self.item_publishedLongitude.grid(row=1, column=0, sticky=W)
         
-        #empty space between longitude and latitude
+        #Create empty space between longitude and latitude.
         
         empty_label1 = Label(self.PubLoc_frame, text = "   ")
         empty_label1.grid(row=0, column=1, sticky=W)
@@ -975,17 +1052,17 @@ class App:
         empty_label1 = Label(self.PubLoc_frame, text = "   ")
         empty_label1.grid(row=1, column=1, sticky=W)
         
-        #published latitude label
+        #Create published latitude label.
         
         item_publishedLatitude_label = Label(self.PubLoc_frame, text = "Latitude:", justify=LEFT)
         item_publishedLatitude_label.grid(row=0, column=2, sticky=W)
         
-        #published latitude entry widget
+        #Create published latitude entry widget.
         
         self.item_publishedLatitude = Entry(self.PubLoc_frame, width=14)
         self.item_publishedLatitude.grid(row=1, column=2, sticky=W)
         
-        #empty space between latitude and place
+        #Create empty space between latitude and place.
         
         empty_label1 = Label(self.PubLoc_frame, text = "  ")
         empty_label1.grid(row=0, column=3, sticky=W)
@@ -993,152 +1070,154 @@ class App:
         empty_label1 = Label(self.PubLoc_frame, text = "  ")
         empty_label1.grid(row=1, column=3, sticky=W)
         
-        #published place label 
+        #Create published place label. 
         
         item_publishedPlace_label = Label(self.PubLoc_frame, text = "Place:", justify=LEFT)
         item_publishedPlace_label.grid(row=0, column=4, sticky=W)
         
-        #published place entry widget
+        #Create published place entry widget.
         
         self.item_publishedPlace = Entry(self.PubLoc_frame, width=25)
         self.item_publishedPlace.grid(row=1, column=4, sticky=W)
         
-        ##########
+        #Time to add dates for published location.
         
         lerow += 1
         
-        #published date frame
+        #Create fram that contains published dates.
         
         self.PubDate_frame = Frame(self.right_frame)
         self.PubDate_frame.grid(row=lerow, column=0, sticky=W)   
         
-        #published start date label 
+        #Create published start date label. 
         
         item_pubStartDate_label = Label(self.PubDate_frame, text = "Start Date:", justify=LEFT)
         item_pubStartDate_label.grid(row=0, column=0, sticky=W)
         
-        #empty space between start label and start day
+        #Create empty space between start label and start day.
         
         empty_label1 = Label(self.PubDate_frame, text = "  ")
         empty_label1.grid(row=0, column=1, sticky=W)
         
-        #published start date day entry widget
+        #Create published start date day entry widget.
         
         self.item_pubStartDay = Entry(self.PubDate_frame, width=3)
         self.item_pubStartDay.grid(row=0, column=2, sticky=W)
         
-        #empty space between start day and start month
+        #Create empty space between start day and start month.
         
         empty_label1 = Label(self.PubDate_frame, text = "  ")
         empty_label1.grid(row=0, column=3, sticky=W)
         
-        #published start date month entry widget
+        #Create published start date month entry widget.
         
         self.item_pubStartMonth = Entry(self.PubDate_frame, width=3)
         self.item_pubStartMonth.grid(row=0, column=4, sticky=W)
         
-        #empty space between start month and start year
+        #Create empty space between start month and start year.
         
         empty_label1 = Label(self.PubDate_frame, text = "  ")
         empty_label1.grid(row=0, column=5, sticky=W)
         
-        #published start date year entry widget 
+        #Create published start date year entry widget. 
         
         self.item_pubStartYear = Entry(self.PubDate_frame, width=5)
         self.item_pubStartYear.grid(row=0, column=6, sticky=W)
         
-        #empty space between start year and end label
+        #Create empty space between start year and end label.
         
         empty_label1 = Label(self.PubDate_frame, text = "  ")
         empty_label1.grid(row=0, column=7, sticky=W)
         
-        #published end date label 
+        #Create published end date label. 
         
         item_pubEndDate_label = Label(self.PubDate_frame, text = "End Date:", justify=LEFT)
         item_pubEndDate_label.grid(row=0, column=8, sticky=W)
         
-        #empty space between end label and end day
+        #Create empty space between end label and end day.
         
         empty_label1 = Label(self.PubDate_frame, text = "  ")
         empty_label1.grid(row=0, column=9, sticky=W)
         
-        #published end date day entry widget
+        #Create published end date day entry widget.
         
         self.item_pubEndDay = Entry(self.PubDate_frame, width=3)
         self.item_pubEndDay.grid(row=0, column=10, sticky=W)
         
-        #empty space between end day and end month
+        #Create empty space between end day and end month.
         
         empty_label1 = Label(self.PubDate_frame, text = "  ")
         empty_label1.grid(row=0, column=11, sticky=W)
         
-        #published end date month entry widget
+        #Create published end date month entry widget.
         
         self.item_pubEndMonth = Entry(self.PubDate_frame, width=3)
         self.item_pubEndMonth.grid(row=0, column=12, sticky=W)
         
-        #empty space between end month and end year
+        #Create empty space between end month and end year.
         
         empty_label1 = Label(self.PubDate_frame, text = "  ")
         empty_label1.grid(row=0, column=13, sticky=W)
         
-        #published end date year entry widget 
+        #Create published end date year entry widget. 
         
         self.item_pubEndYear = Entry(self.PubDate_frame, width=5)
         self.item_pubEndYear.grid(row=0, column=14, sticky=W)
         
         ###
-        #add dd, mm and yyyy labels
+        #Add dd, mm and yyyy labels.
         ###  
         
-        #start dd label
+        #Add start dd label.
         
         dd_label = Label(self.PubDate_frame, text = "dd", foreground = "grey", justify=LEFT)
         dd_label.grid(row=1, column=2, sticky=W)
         
-        #start mm label
+        #Add start mm label.
         
         mm_label = Label(self.PubDate_frame, text = "mm", foreground = "grey", justify=LEFT)
         mm_label.grid(row=1, column=4, sticky=W)
         
-        #start yyyy label
+        #Add start yyyy label.
         
         yyyy_label = Label(self.PubDate_frame, text = "yyyy", foreground = "grey", justify=LEFT)
         yyyy_label.grid(row=1, column=6, sticky=W)
         
-        #end dd label
+        #Add end dd label.
         
         dd_label = Label(self.PubDate_frame, text = "dd", foreground = "grey", justify=LEFT)
         dd_label.grid(row=1, column=10, sticky=W)
         
-        #end mm label
+        #Add end mm label.
         
         mm_label = Label(self.PubDate_frame, text = "mm", foreground = "grey", justify=LEFT)
         mm_label.grid(row=1, column=12, sticky=W)
         
-        #end yyyy label
+        #Add end yyyy label.
         
         yyyy_label = Label(self.PubDate_frame, text = "yyyy", foreground = "grey", justify=LEFT)
         yyyy_label.grid(row=1, column=14, sticky=W)
 
         lerow += 1
 
-        #add/cancel buttons frame
+        #Create frame that will contain the add and cancel buttons.
         
         self.AC_frame = Frame(self.right_frame)
         self.AC_frame.grid(row=lerow, column=0, sticky=E)
 
-        #create Add button
-        
-        textV = StringVar(self.AC_frame)
+        #Create add/update button.
         
         if order == "edit":
         
-            self.editEntryInfo() #function call ... leindex = ...
-            additem = Button(self.AC_frame, text="Update", command=lambda: self.checkForErrors(order))  
+            #If order is "edit", then call the function editEntryInfo()....
+            self.editEntryInfo()
             
+            #then create the button with the text "Update".
+            additem = Button(self.AC_frame, text="Update", command=lambda: self.checkForErrors(order))  
+ 
         else:
             
+            #If order is "add" then create the button with the text "Add".
             additem = Button(self.AC_frame, text="Add", command=lambda: self.checkForErrors(order))  
                   
         additem.grid(row=0, column=0, sticky=W)
@@ -1149,31 +1228,68 @@ class App:
         cancelitem.grid(row=0, column=1, sticky=W)
         
         (self.AddItemWindow).mainloop() 
-        #(self.AddItemWindow).destroy() causes problem when user clicks on x button but window won't close without this when 'cancel' is clicked
     
+    ##############
+    #function name: deleteElmClick
+    #parameters:    self
+    #returns:       None
+    #description:   This function is called when the "delete" button is clicked on the first window. This function checks for
+    #		    items that were selected on the visible GUI list in the first window and it deletes all traces of the selected 
+    #		    items. This means that the item is deleted in the itemList as well as in the indexList, subitemList and visible
+    #		    GUI list. As items are deleted, the selected item indexes change, and so in the function the selected items
+    #		    must be 'recalculated' after every deletion.
+    ##############
     
     def deleteElmClick(self):
         
+        #Get list with indexes of items that are selected on the visible GUI list.
         selected = (self.listbox).curselection()
         
         while len(selected) != 0:
             
+            #Add asterisk to file name on top of first window, if the file name has no asterisk to begin with. This is to symbolize 
+            #that the file contents have changed.
             if "*" not in (self.openxmlfile).get():
         
                 xmlname = (self.openxmlfile).get()
                 xmlname = xmlname + "*"
                 (self.openxmlfile).set(xmlname)
             
-            index = int(selected[0])                 #get index from 'selected' as an integer
-            (self.listbox).delete(index)             #delete first selected item
+            #Start deleting information of first selected item so far.
             
-            itemIndex = self.indexList[index]       #get index of element to remove of item list, from the index list
-            del self.itemList[itemIndex]            #remove corresponding element from item list
+            index = int(selected[0])                 # Get index from 'selected' as an integer.
+            (self.listbox).delete(index)             # Delete first selected item.
+            
+            itemIndex = self.indexList[index]       # Get index of element to remove of item list, from the index list.
+            del self.itemList[itemIndex]            # Remove corresponding element from item list.
+            
+            #Delete subitem contents corresponding with deleted item. But first have to look for subitems corresponding to deleted item. 
+            #Then we may proceed to delete the subitem(s).
+            while i < len(self.subitemList): 
+                        
+                if (self.subitemList[i][0]) == (self.itemList[itemIndex][10]):
+                            
+                    del self.subitemList[i] 
+                
+                i = i + 1
             
             #del self.indexList[index]               #remove corresponding element from index list ... program doesn't work with this line?
             
-            selected = (self.listbox).curselection() #have to recalculate list because it got shorter since we deleted an item 
+            selected = (self.listbox).curselection() # Have to recalculate list because it got shorter since we deleted an item. 
         
+       
+    ##############
+    #function name: editEntryInfo
+    #parameters:    self
+    #returns:       None
+    #description:   This function is called when the "edit" button is clicked on the first window. This function checks for an
+    #		    item that was selected on the visible GUI list in the first window and displays the information of that
+    #               item on the add item window created in the function addElmClick(). This function is called in the function
+    #               checkForErrors(). In checkForErrors(), a check is made to make sure that the amount of items selected is
+    #               equal to 1. If it isn't, then editEntryInfo() is never called. The editEntryInfo() funcion gets the information
+    #               of the selected item from the itemList and adds it into the entry widgets of the add item window.
+    #
+    ##############    
         
     def editEntryInfo(self):
         
@@ -1203,11 +1319,11 @@ class App:
         (self.item_title).insert(END, self.itemList[elemIndex][1]) 
         
         #item description
-        #(self.item_description).delete(0, END)
+        (self.item_description).delete(1.0, END)
         (self.item_description).insert(END, self.itemList[elemIndex][2]) 
         
         #item transcript
-        #(self.item_transcript).delete(0, END)
+        (self.item_transcript).delete(1.0, END)
         (self.item_transcript).insert(END, self.itemList[elemIndex][3])         
         
         #item originalSource
@@ -1390,7 +1506,7 @@ class App:
         (self.item_liURL).insert(END, self.itemList[elemIndex][48])
         
         #item disclaimer
-        #(self.item_disclaimer).delete(0, END)
+        (self.item_disclaimer).delete(1.0, END)
         (self.item_disclaimer).insert(END, self.itemList[elemIndex][49])
         
         #yes/no to autogenerated description for subitems
@@ -1402,6 +1518,19 @@ class App:
             
             checkBox.select()
         
+     
+    ##############
+    #function name: overwriteClick
+    #parameters:    self, index, order
+    #returns:       None
+    #description:   This function is called when the "edit" button is clicked on the first window. This function checks for an
+    #		    item that was selected on the visible GUI list in the first window and displays the information of that
+    #               item on the add item window created in the function addElmClick(). This function is called in the function
+    #               checkForErrors(). In checkForErrors(), a check is made to make sure that the amount of items selected is
+    #               equal to 1. If it isn't, then editEntryInfo() is never called. The editEntryInfo() funcion gets the information
+    #               of the selected item from the itemList and adds it into the entry widgets of the add item window.
+    #
+    ##############  
      
     def overwriteClick(self, index, order):
         
@@ -1644,7 +1773,7 @@ class App:
             (self.AddItemWindow).destroy()
         
   
-    def importCSVClick(self): #NEEDS A CHANGIN'
+    def importCSVClick(self): #NEEDS A CHANGIN'. Only works for very specific CSV column structure. Only useful for Legacy VisCenter CSVs.
         
         csvFileName = askopenfilename()
         
@@ -1843,24 +1972,12 @@ class App:
         #now check for errors in input
         
         error = False
-        
-        #if (self.item_type).get() == "":
-            
-            #error = True
-            
-            #(self.item_type).configure(highlightbackground="red")
             
         if (self.item_title).get() == "":
             
             error = True
             
             (self.item_title).configure(highlightbackground="red")
-            
-        #if (self.item_description).get("1.0",END) == "\n":
-            
-        #    error = True
-            
-        #    (self.item_description).configure(highlightbackground="red")
         
         if (order == "add") and ((self.item_file).get() == ""):
             
@@ -2386,29 +2503,30 @@ class App:
                 #add title of subitem
                 tempList.append("Page "+str(pageNumber))             
                 
-                if (self.YesNo).get() == 1: #if user selected to autogenerate folio descriptions, add folio description of subitem
+                #The following if statement shhould be used in the future when the auto-generate checkbox is fixed.
+                #if (self.YesNo).get() == 1: #if user selected to autogenerate folio descriptions, add folio description of subitem
                 
-                    LePage = ""
-                    folioNum = str((pageNumber+1)//2)
-                    
-                    if (folioNum[len(folioNum)-1] == '1') & (folioNum != '11'):
-                        LePage = "st"
+                LePage = ""
+                folioNum = str((pageNumber+1)//2)
+                
+                if (folioNum[len(folioNum)-1] == '1') & (folioNum != '11'):
+                    LePage = "st"
+                else:
+                    if (folioNum[len(folioNum)-1] == '2') & (folioNum != '12'):
+                        LePage = "nd"
                     else:
-                        if (folioNum[len(folioNum)-1] == '2') & (folioNum != '12'):
-                            LePage = "nd"
+                        if (folioNum[len(folioNum)-1] == '3') & (folioNum != '13'):
+                            LePage = "rd"
                         else:
-                            if (folioNum[len(folioNum)-1] == '3') & (folioNum != '13'):
-                                LePage = "rd"
-                            else:
-                                LePage = "th"
-                        
-                    folioInfo = "The " + folioNum + LePage + " folio." #note, // is for integer division, it truncates the result.
-                        
-                    tempList.append(folioInfo)
+                            LePage = "th"
                     
-                else: #description tag will not exist
+                folioInfo = "The " + folioNum + LePage + " folio." #note, // is for integer division, it truncates the result.
                     
-                    tempList.append("")
+                tempList.append(folioInfo)
+                    
+                #else: #description tag will not exist
+                    
+                #    tempList.append("")
                 
                 #add image path
                 pathOfImage = (self.item_googlePath).get() + filename #result: googlePath/ChadGospels-page.jpg
@@ -2438,11 +2556,15 @@ class App:
         
       
       
-    ###
-    #Function that parses an existing xml file and calls the getIndex function with a tag as the parameter, so to know in what position of the tempList list to save the tag info
-    ###
+    ##############
+    #function name: getFilePath
+    #parameters:    self
+    #returns:       None
+    #description:   This function is called when the import or open buttons are clicked. This function parses an existing xml file and calls the getIndex function with a tag as the parameter,
+    #               so to know in what position of the tempList list to save the tag info, to then later append the tempList to itemList and redo.
+    ##############
     
-    def openInfoClick(self, order): #**** HAVING BIG PROBLEM WITH WARNING WINDOWS
+    def openInfoClick(self, order): 
         
         #set up boolean variables
          
@@ -2542,14 +2664,23 @@ class App:
             subList = []
             
             i = 0
+            j = 0
         
-            #make temoList into a list with 50 elements
+            #make tempList into a list with 50 elements
         
             while i < 51:
             
                 tempList.append("")
                 
                 i = i + 1
+                
+            #make subList into a list with 4 elements
+            
+            while j < 5:
+            
+                subList.append("")
+                
+                j = j + 1
             
             #look for tag that is item
             
@@ -2575,8 +2706,6 @@ class App:
                                 
                                 itemindex = i
                                 
-                                #if replaceAll == False: #if replaceAll isn't true, pop up window that says there's a duplicate item
-                                
                                 if (self.replace).get() == 1: #replace one item at a time
                                 
                                     #pop up window to ask user what to do about duplicate ID
@@ -2589,7 +2718,7 @@ class App:
                                       
                                         (self.replace).set(0)
                                         
-                                elif (self.replace).get() == 2: #replace al duplicate item at one
+                                elif (self.replace).get() == 2: #replace all duplicate items at once
                                     
                                     #pop up window to ask user what to do about duplicate ID
                                 
@@ -2799,12 +2928,20 @@ class App:
                     for Schild in lechildren:
                         
                         subList = []
+                        
+                        #make subList into a list with 4 elements
+            
+                        while j < 5:
+                        
+                            subList.append("")
+                            
+                            j = j + 1
                     
-                        subList.append(itemID)
+                        subList[0] = itemID
                     
                         if Schild.tag == "subitem":
                                 
-                            subList.append(Schild.attrib['identifier'])
+                            subList[1] = Schild.attrib['identifier']
                 
                         sequence_tags = Schild #Rchild[i]
                         
@@ -2812,17 +2949,27 @@ class App:
                             
                             #print Schild.tag
                             
-                            if SSchild.tag != "image":
+                            if SSchild.tag == "title":
                                 
-                                info = SSchild[0].text
-                                
-                            else:
-                                
-                                info = SSchild.attrib['filename']
-                                
-                            subList.append(info)
+                                subList[2] == SSchild[0].text
                             
-                    #i = i + 1
+                            elif SSchild.tag == "description":
+                                
+                                subList[3] = SSchild[0].text
+                            
+                            elif SSchild.tag == "image":
+                                
+                                subList[4] = SSchild.attrib['filename']
+                            
+                            elif Schild.tag == "transcript":
+                                
+                                if SSchild.attrib['lang'] == "en":
+                                
+                                    subList[5] = SSchild[0].text
+                                    
+                                elif SSchild.attrib['lang'] == "la":
+                                    
+                                    subList[6] = SSchild[0].text
                     
                         (self.subitemList).append(subList)
                         
@@ -3473,16 +3620,24 @@ class App:
                             Image = ET.SubElement(Subitem, "image") 
                             TheFilePath = self.subitemList[j][4]
                             Image.set("filename", TheFilePath)     
-                            
-                            ###commented out because it was causing errors in upload to google cultural institute. also, we did not have it working yet.
+
                             #write the transcript tag
-                            #Transcript = ET.SubElement(Subitem, "transcript") 
-                            #Text1 = ET.SubElement(Transcript, "text")  
-                            #Text1.set("lang", "en")            #text in english        
-                            #Text1.text = self.subitemList[j][5]     #english transcript                  
-                            #Text2 = ET.SubElement(Transcript, "text")  
-                            #Text2.set("lang", "la")            #text in latin       
-                            #Text2.text = self.subitemList[j][6]     #latin transcript
+                            
+                            if (self.subitemList[j][5] != "") or (self.subitemList[j][6] != ""):
+                            
+                                Transcript = ET.SubElement(Subitem, "transcript")
+                                
+                                if self.subitemList[j][5] != "":
+                                
+                                    Text1 = ET.SubElement(Transcript, "text")  
+                                    Text1.set("lang", "en")            #text in english        
+                                    Text1.text = self.subitemList[j][5]     #english transcript
+                                    
+                                if self.subitemList[j][6] != "":
+                                    
+                                    Text2 = ET.SubElement(Transcript, "text")  
+                                    Text2.set("lang", "la")            #text in latin       
+                                    Text2.text = self.subitemList[j][6]     #latin transcript
                             
                             j = j + 1 #increment counter of the subitem loop by 1
                             
