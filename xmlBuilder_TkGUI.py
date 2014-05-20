@@ -1,11 +1,19 @@
+#VISCENTER Interns 
+#Program last updated May 20, 2014
+
+#This program is used to create an xml file consisting of collections of various works and their info. 
+#It can also display data from the xml file in a user friendly format.
+
+
 from Tkinter import *                   #import library that enables the creation of the GUI
 from tkFileDialog import *              #import library to be able to ask file name by dialog box
 import csv                              #import library that faciliates reading and writting csv files
 import xml.etree.cElementTree as ET     #import library that facilitates writting xml files
-from xml.dom import minidom             
-import os
-import os.path
-import re
+from xml.dom import minidom             #is a minimal implementation of the Document Object Model interface, with an API similar to that in other languages. 
+import os                               #provides dozens of functions for interacting with the operating system
+import os.path                          #implements some useful functions on pathnames
+import re                               #he functions in this module let you check if a particular string matches a given regular expression
+
 
 
 class App:
@@ -24,13 +32,11 @@ class App:
         self.olditemID = StringVar()
         
         self.openxmlfile = StringVar(self.RootWindow)
-        (self.openxmlfile).set("Untitled")
+        (self.openxmlfile).set("") #used to wright below xml builder name on interface for things like error instructions
         Label(self.RootWindow, textvariable=self.openxmlfile).grid(row=0, column=1, sticky=N+E+W+S)
         
         self.openxmlfile_path = StringVar(self.RootWindow)
-        
-        #Label(self.list_frame, text="Added items:").pack(side=TOP)
-        
+                
         self.listbox = Listbox(self.RootWindow, width=125, height=35, selectmode=MULTIPLE)
         (self.listbox).grid(row=1, column=0, columnspan=3, sticky=N+E+W+S)
         
@@ -38,36 +44,37 @@ class App:
         
         self.item_frame = Frame(self.RootWindow)
         (self.item_frame).grid(row=2, column=0, sticky=W)
-
-        self.add_el = Button(self.item_frame, text="+", command=lambda: self.addElmClick("add"))
+        #Add button
+        self.add_el = Button(self.item_frame, text="Add", command=lambda: self.addElmClick("add"))
         (self.add_el).focus_force()
         (self.add_el).grid(row=0, column=0, sticky=W)
-        
-        self.delete_el = Button(self.item_frame, text="-", command=self.deleteElmClick)
+        #Delete button
+        self.delete_el = Button(self.item_frame, text="Delete", command=self.deleteElmClick)
         (self.delete_el).grid(row=0, column=1, sticky=W)
-        
+        #Edit button
         self.edit_info = Button(self.item_frame, text="Edit", command=lambda: self.addElmClick("edit"))
         (self.edit_info).grid(row=0, column=2, sticky=W)
-        
+        #Import button
         self.import_info = Button(self.item_frame, text="Import", command=lambda: self.openInfoClick("import"))
         (self.import_info).grid(row=0, column=3, sticky=W)
         
         #right corner buttons
-
-        self.save_frame = Frame(self.RootWindow)
-        (self.save_frame).grid(row=2, column=2, sticky=E)
         
+        #sets frame for buttons on output screen 
+        self.save_frame = Frame(self.RootWindow)
+        (self.save_frame).grid(row=2, column=2, sticky=E) 
+        #open button
         self.open_info = Button(self.save_frame, text="Open", command=lambda: self.openInfoClick("open"))
         (self.open_info).grid(row=0, column=0, sticky=W)
-        
+        #save button
         self.save_info = Button(self.save_frame, text="Save", command=lambda: self.saveClick("overwrite"))
         (self.save_info).grid(row=0, column=1, sticky=W)
-        
+        #save as button
         self.save_as_info = Button(self.save_frame, text="Save As...", command=lambda: self.saveClick("write")) #export information to xml file
         (self.save_as_info).grid(row=0, column=2, sticky=W)
 
 
-    
+    #to select file (filepath)
     def getFilePath(self):
         
         if (self.item_type.get()) == "collection":
@@ -78,14 +85,17 @@ class App:
         (self.item_file).delete(0, END)
         (self.item_file).insert(END, filename)      
         
-        
+    #if edit is clicked
     def addElmClick(self, order):
         
         if order == "edit":
         
             selected = (self.listbox).curselection()
+            (self.openxmlfile).set("")#clears error message from edit
             
             if len(selected) != 1:
+                (self.openxmlfile).set("**** Please select only one line to edit ****")#used to wright below xml builder name on interface for things like error instructions
+               
                 
                 return
         
@@ -99,9 +109,7 @@ class App:
         
         (self.AddItemWindow).resizable(width=FALSE, height=FALSE)
         
-        #####################################################################################left side####################################################################################
-        #left side
-        ###
+        #################################################################################### left side #########################################################################################
         
         #create left container
         
@@ -303,9 +311,7 @@ class App:
         self.import_csv= Button(self.left_frame, text="Import", command=self.importCSVClick)
         self.import_csv.grid(row=lerow, column=0, sticky=W)
         
-        #####################################################################################right side####################################################################################
-        #right side
-        ###
+        #################################################################################### right side #######################################################################################
         
         #create right container
         
@@ -359,9 +365,9 @@ class App:
         #create language option menu widget
         
         self.item_language = StringVar(self.TLF_frame)
-        (self.item_language).set("en") # default value
+        (self.item_language).set("EN") # default value
         
-        self.option_menu2 = OptionMenu(self.TLF_frame, self.item_language, "en", "la", "af", "sq", "ar", "az", "eu", "bn", "be", "bg", "ca", "zh-CN", "zh-TW", "hr", "cs", "da", "nl", "eo", "et", "tl", "fi", "fr", "gl", "ka", "de", "el", "gu", "ht", "iw", "hi", "hu", "is", "id", "ga", "it", "ja", "kn", "ko", "lv", "lt", "mk", "ms", "mt", "no", "fa", "pl", "pt", "ro", "ru", "sr", "sk", "sl", "es", "sw", "sv", "ta", "te", "th", "tr", "uk", "ur", "vi", "cy", "yi")
+        self.option_menu2 = OptionMenu(self.TLF_frame, self.item_language, "EN", "LA", "AF", "SQ", "AR", "AZ", "EU", "BN", "BE", "BG", "CA", "ZH-CN", "ZH-TW", "HR", "CS", "DA", "NL", "EO", "ET", "TL", "FI", "FR", "GL", "KA", "DE", "EL", "GU", "HT", "IW", "HI", "HU", "IS", "ID", "GA", "IT", "JA", "KN", "KO", "LV", "LT", "MK", "MS", "MT", "NO", "FA", "PL", "PT", "RO", "RU", "SR", "SK", "SL", "ES", "SW", "SV", "TA", "TE", "TH", "TR", "UK", "UR", "VI", "CY", "YI")
         (self.option_menu2).config(width=1) #not resizing
         self.option_menu2.grid(row=1, column=2, sticky=N+S+W+E)
         
@@ -613,38 +619,34 @@ class App:
         self.item_primEndYear = Entry(self.PriDate_frame, width=5)
         self.item_primEndYear.grid(row=0, column=14, sticky=W)
         
-        ###
-        #add dd, mm and yyyy labels
-        ###  
+        ################################################################## add dd, mm and yyyy labels ######################################################################################
         
-        #start dd label
-        
-        dd_label = Label(self.PriDate_frame, text = "dd", foreground = "grey", justify=LEFT)
+        dd_label = Label(self.PriDate_frame, text = " dd", foreground = "pink", justify=LEFT)
         dd_label.grid(row=1, column=2, sticky=W)
         
         #start mm label
         
-        mm_label = Label(self.PriDate_frame, text = "mm", foreground = "grey", justify=LEFT)
+        mm_label = Label(self.PriDate_frame, text = " mm", foreground = "pink", justify=LEFT)
         mm_label.grid(row=1, column=4, sticky=W)
         
         #start yyyy label
         
-        yyyy_label = Label(self.PriDate_frame, text = "yyyy", foreground = "grey", justify=LEFT)
+        yyyy_label = Label(self.PriDate_frame, text = "  yyyy", foreground = "pink", justify=LEFT)
         yyyy_label.grid(row=1, column=6, sticky=W)
         
         #end dd label
         
-        dd_label = Label(self.PriDate_frame, text = "dd", foreground = "grey", justify=LEFT)
+        dd_label = Label(self.PriDate_frame, text = " dd", foreground = "pink", justify=LEFT)
         dd_label.grid(row=1, column=10, sticky=W)
         
         #end mm label
         
-        mm_label = Label(self.PriDate_frame, text = "mm", foreground = "grey", justify=LEFT)
+        mm_label = Label(self.PriDate_frame, text = " mm", foreground = "pink", justify=LEFT)
         mm_label.grid(row=1, column=12, sticky=W)
         
         #end yyyy label
         
-        yyyy_label = Label(self.PriDate_frame, text = "yyyy", foreground = "grey", justify=LEFT)
+        yyyy_label = Label(self.PriDate_frame, text = "  yyyy", foreground = "pink", justify=LEFT)
         yyyy_label.grid(row=1, column=14, sticky=W)
         
         
@@ -792,38 +794,38 @@ class App:
         self.item_creEndYear = Entry(self.CreDate_frame, width=5)
         self.item_creEndYear.grid(row=0, column=14, sticky=W)
         
-        ###
-        #add dd, mm and yyyy labels
-        ###  
+        
+        ################################################################## add dd, mm and yyyy labels ######################################################################################
+        
         
         #start dd label
         
-        dd_label = Label(self.CreDate_frame, text = "dd", foreground = "grey", justify=LEFT)
+        dd_label = Label(self.CreDate_frame, text = " dd", foreground = "pink", justify=LEFT)
         dd_label.grid(row=1, column=2, sticky=W)
         
         #start mm label
         
-        mm_label = Label(self.CreDate_frame, text = "mm", foreground = "grey", justify=LEFT)
+        mm_label = Label(self.CreDate_frame, text = " mm", foreground = "pink", justify=LEFT)
         mm_label.grid(row=1, column=4, sticky=W)
         
         #start yyyy label
         
-        yyyy_label = Label(self.CreDate_frame, text = "yyyy", foreground = "grey", justify=LEFT)
+        yyyy_label = Label(self.CreDate_frame, text = "  yyyy", foreground = "pink", justify=LEFT)
         yyyy_label.grid(row=1, column=6, sticky=W)
         
         #end dd label
         
-        dd_label = Label(self.CreDate_frame, text = "dd", foreground = "grey", justify=LEFT)
+        dd_label = Label(self.CreDate_frame, text = " dd", foreground = "pink", justify=LEFT)
         dd_label.grid(row=1, column=10, sticky=W)
         
         #end mm label
         
-        mm_label = Label(self.CreDate_frame, text = "mm", foreground = "grey", justify=LEFT)
+        mm_label = Label(self.CreDate_frame, text = " mm", foreground = "pink", justify=LEFT)
         mm_label.grid(row=1, column=12, sticky=W)
         
         #end yyyy label
         
-        yyyy_label = Label(self.CreDate_frame, text = "yyyy", foreground = "grey", justify=LEFT)
+        yyyy_label = Label(self.CreDate_frame, text = "  yyyy", foreground = "pink", justify=LEFT)
         yyyy_label.grid(row=1, column=14, sticky=W)
         
         lerow += 1
@@ -969,39 +971,37 @@ class App:
         
         self.item_pubEndYear = Entry(self.PubDate_frame, width=5)
         self.item_pubEndYear.grid(row=0, column=14, sticky=W)
-        
-        ###
-        #add dd, mm and yyyy labels
-        ###  
+             
+        ################################################################## add dd, mm and yyyy labels ######################################################################################
         
         #start dd label
         
-        dd_label = Label(self.PubDate_frame, text = "dd", foreground = "grey", justify=LEFT)
+        dd_label = Label(self.PubDate_frame, text = " dd", foreground = "pink", justify=LEFT)
         dd_label.grid(row=1, column=2, sticky=W)
         
         #start mm label
         
-        mm_label = Label(self.PubDate_frame, text = "mm", foreground = "grey", justify=LEFT)
+        mm_label = Label(self.PubDate_frame, text = " mm", foreground = "pink", justify=LEFT)
         mm_label.grid(row=1, column=4, sticky=W)
         
         #start yyyy label
         
-        yyyy_label = Label(self.PubDate_frame, text = "yyyy", foreground = "grey", justify=LEFT)
+        yyyy_label = Label(self.PubDate_frame, text = "  yyyy", foreground = "pink", justify=LEFT)
         yyyy_label.grid(row=1, column=6, sticky=W)
         
         #end dd label
         
-        dd_label = Label(self.PubDate_frame, text = "dd", foreground = "grey", justify=LEFT)
+        dd_label = Label(self.PubDate_frame, text = " dd", foreground = "pink", justify=LEFT)
         dd_label.grid(row=1, column=10, sticky=W)
         
         #end mm label
         
-        mm_label = Label(self.PubDate_frame, text = "mm", foreground = "grey", justify=LEFT)
+        mm_label = Label(self.PubDate_frame, text = " mm", foreground = "pink", justify=LEFT)
         mm_label.grid(row=1, column=12, sticky=W)
         
         #end yyyy label
         
-        yyyy_label = Label(self.PubDate_frame, text = "yyyy", foreground = "grey", justify=LEFT)
+        yyyy_label = Label(self.PubDate_frame, text = "  yyyy", foreground = "pink", justify=LEFT)
         yyyy_label.grid(row=1, column=14, sticky=W)
 
         lerow += 1
@@ -1037,16 +1037,16 @@ class App:
     
     def deleteElmClick(self):
         
-        if "*" not in (self.openxmlfile).get():
+        if "" not in (self.openxmlfile).get():#had *
         
             xmlname = (self.openxmlfile).get()
-            xmlname = xmlname + "*"
+            xmlname = xmlname + ""#had *
             (self.openxmlfile).set(xmlname)
         
         selected = (self.listbox).curselection()
         
         while len(selected) != 0:
-            
+            (self.openxmlfile).set("")#clears error message from edit
             index = int(selected[0])                 #get index from 'selected' as an integer
             (self.listbox).delete(index)             #delete first selected item
             
@@ -1056,6 +1056,7 @@ class App:
             #del self.indexList[index]               #remove corresponding element from index list ... program doesn't work with this line?
             
             selected = (self.listbox).curselection() #have to recalculate list because it got shorter since we deleted an item 
+            
         
         
     def editEntryInfo(self):
@@ -1080,7 +1081,7 @@ class App:
         
         num = 0
         
-       #loop used to get information from itemList and write it on teh entry widgets
+       #loop used to get information from itemList and write it on the entry widgets
         for a in itemnames: 
              
         
@@ -1105,10 +1106,10 @@ class App:
      
     def editListInfo(self, error):
         
-        if "*" not in (self.openxmlfile).get():
+        if "" not in (self.openxmlfile).get():#had *
         
             xmlname = (self.openxmlfile).get()
-            xmlname = xmlname + "*"
+            xmlname = xmlname + ""#had *
             (self.openxmlfile).set(xmlname)
             
         
@@ -1141,9 +1142,8 @@ class App:
                         
                     index = index + 1
             
-            ###
-            #edit info from visible list
-            ###
+            ################################################################## edit info from visible list ######################################################################################
+    
             
             #delete corresponding item from list
             
@@ -1193,9 +1193,7 @@ class App:
                 return #leave the function 
             i = i + 1 
         
-        ###   
-        #add the csv information into the entry widgets.
-        ###
+        ################################################################## Add the csv info into the entry widgets ######################################################################################
         
         #title
         (self.item_title).delete(0, END)
@@ -1402,10 +1400,8 @@ class App:
                     
                 i += 1
           
-        ####  
-        #primary date
-        ###
-            
+        ####################################################################### primary date ############################################################################################
+  
         if (((self.item_primStartDay.get()) != "") & ((self.item_primStartYear.get()) != "")) & ((self.item_primStartMonth.get()) == ""):
             
             error = True
@@ -1498,9 +1494,7 @@ class App:
             
                 (self.item_primEndYear).configure(highlightbackground="red")
 
-        ####  
-        #created date
-        ###
+        ############################################################################## created date ######################################################################################
             
         if (((self.item_creStartDay.get()) != "") & ((self.item_creStartYear.get()) != "")) & ((self.item_creStartMonth.get()) == ""):
             
@@ -1594,10 +1588,8 @@ class App:
             
                 (self.item_creEndYear).configure(highlightbackground="red")
 
-        ####  
-        #published date
-        ###
-            
+        ########################################################################### published date ######################################################################################
+
         if (((self.item_pubStartDay.get()) != "") & ((self.item_pubStartYear.get()) != "")) & ((self.item_pubStartMonth.get()) == ""):
             
             error = True
@@ -1693,6 +1685,7 @@ class App:
         if order == "add":
             
             self.addItemClick(error)
+            (self.openxmlfile).set("")#clears error message from edit
             
         else:
             
@@ -1701,10 +1694,10 @@ class App:
         
     def addItemClick(self, error):
         
-        if "*" not in (self.openxmlfile).get():
+        if "" not in (self.openxmlfile).get():#had *
         
             xmlname = (self.openxmlfile).get()
-            xmlname = xmlname + "*"
+            xmlname = xmlname + ""#had *
             (self.openxmlfile).set(xmlname)
         
         if not error: #if there are no errors, add info to the item list and leave the window
@@ -1820,11 +1813,9 @@ class App:
             #close window
             (self.AddItemWindow).destroy()
         
-      
-      
-    ###
-    #Function that parses an existing xml file and calls the getIndex function with a tag as the parameter, so to know in what position of the tempList list to save the tag info
-    ###
+    ##
+    #Function that parses an existing xml file and calls the getIndex function with a tag as the parameter, so to know in what position of the tempList list to save the tag info 
+    ##
     
     def openInfoClick(self, order): 
         
@@ -1832,7 +1823,7 @@ class App:
         
         #get xml file name
         
-        filename = askopenfilename(title='please select the xml file you wish to open')
+        filename = askopenfilename(title='Please select the XML file you wish to open')
         
         wrong = True
         
@@ -1844,13 +1835,13 @@ class App:
            
             elif (not filename.endswith('.xml')):
                
-                filename = askopenfilename(title='please try again. select an XML file this time.')
+                filename = askopenfilename(title='Please try again. Select an XML file this time.')
                 
             else:
                
                 wrong = False
-        
-        #if "open" was clicked, change displaed file name on window and erase contents from itemList and subitemList, as well as contents from visible list
+                
+        ################  if "open" was clicked, change displaed file name on window and erase contents from itemList and subitemList, as well as contents from visible list ############
         
         if order == "open":
             
@@ -1870,11 +1861,14 @@ class App:
             
         else: #if order == "import"
             
-            if "*" not in (self.openxmlfile).get():
+            (self.openxmlfile).set("") #clears error message from edit
+            
+            if "" not in (self.openxmlfile).get():#had *
         
                 xmlname = (self.openxmlfile).get()
-                xmlname = xmlname + "*"
+                xmlname = xmlname + ""#had *
                 (self.openxmlfile).set(xmlname)
+                
 
         #initialize list to have 49 elements
         
@@ -1901,9 +1895,8 @@ class App:
         
         leindex = 0
         
-        ###
-        #get item ID
-        ###
+        ################################################################################## get item ID ##################################################################################
+        
         for child in root:
             
             #empty tempList and subList so to reuse them
@@ -2154,10 +2147,7 @@ class App:
             
             (self.indexList).append(len(self.itemList) - 1)
     
-    
-    ###
-    #Function that returns index where info of tag should be saved into tempList array
-    ###
+    ################################################# Function that returns index where info of tag should be saved into tempList array #################################################
     
     def getIndex(self, tag):
         
@@ -2276,7 +2266,7 @@ class App:
         
         if ( ((self.openxmlfile).get() == "Untitled") or ((((self.openxmlfile).get() == "Untitled*"))) and (order == "overwrite")) or (order == "write"):
             
-            xmlFileName = asksaveasfilename(title="select a folder to save the xml file and write the new file name for the file")
+            xmlFileName = asksaveasfilename(title="Select a folder to save the xml file and write the new file name for the file")
         
             wrong = True
         
@@ -2288,7 +2278,7 @@ class App:
                
                 elif (not xmlFileName.endswith('.xml')):
                    
-                    xmlFileName = asksaveasfilename(title='please try again. the file must have \".xml\" as the extension.')
+                    xmlFileName = asksaveasfilename(title='Please try again. The file must have \".xml\" as the extension.')
                     
                 else:
                    
@@ -2324,7 +2314,7 @@ class App:
             
                 Title = ET.SubElement(Item, "title")  #'title' is a child of 'item'
                 Text = ET.SubElement(Title, "text")   #'text' is a child of 'title'
-                Text.set("lang", "en")                # creates the tag: <text lang="en">
+                Text.set("lang", "EN")                # creates the tag: <text lang="en">
                 Text.text = self.itemList[i][1]            #second value of item i, gives the title
              
             #write the description tag
@@ -2333,7 +2323,7 @@ class App:
             
                 Description = ET.SubElement(Item, "description") #'description' is a child of 'item'
                 Text = ET.SubElement(Description, "text")        #'text' is a child of 'description'
-                Text.set("lang", "en")                           # creates the tag: <text lang="en">
+                Text.set("lang", "EN")                           # creates the tag: <text lang="en">
                 Text.text = (self.itemList[i][2]).rstrip()       #remove newline at end with rstrip()
               
             #write the transcript tag 
@@ -2342,7 +2332,7 @@ class App:
                 
                 Transcript = ET.SubElement(Item, "transcript") 
                 Text = ET.SubElement(Transcript, "text")       
-                Text.set("lang", "en")                         
+                Text.set("lang", "EN")                         
                 Text.text = self.itemList[i][3].rstrip()       #remove new line at end with rstrip()
                 
             #write the disclaimer tag
@@ -2390,7 +2380,7 @@ class App:
                 if self.itemList[i][19] != "":
                 
                     Placename = ET.SubElement(Location, "placename") #placename tag
-                    Placename.set("lang", "en")                           
+                    Placename.set("lang", "EN")                           
                     Placename.text = self.itemList[i][19]
                 
             #write the primary date tag
@@ -2454,7 +2444,7 @@ class App:
                     
                 if self.itemList[i][28] != "":        
                     crePlacename = ET.SubElement(creLocation, "placename") #placename tag
-                    crePlacename.set("lang", "en")                           
+                    crePlacename.set("lang", "EN")                           
                     crePlacename.text = self.itemList[i][28]
                 
             #write the dateCreated tag
@@ -2519,7 +2509,7 @@ class App:
                 
                 if self.itemList[i][37] != "":    
                     pubPlacename = ET.SubElement(pubLocation, "placename") #placename tag
-                    pubPlacename.set("lang", "en")                           
+                    pubPlacename.set("lang", "EN")                           
                     pubPlacename.text = self.itemList[i][37]
                 
             #write the published date tag
@@ -2730,11 +2720,11 @@ class App:
                             TheFilePath = self.subitemList[j][4]
                             Image.set("filename", TheFilePath)     
                             
-                            ###commented out because it was causing errors in upload to google cultural institute. also, we did not have it working yet.
+                            ###Commented out because it was causing errors in upload to google cultural institute. Also, we did not have it working yet.
                             #write the transcript tag
                             #Transcript = ET.SubElement(Subitem, "transcript") 
                             #Text1 = ET.SubElement(Transcript, "text")  
-                            #Text1.set("lang", "en")            #text in english        
+                            #Text1.set("lang", "EN")            #text in english        
                             #Text1.text = self.subitemList[j][5]     #english transcript                  
                             #Text2 = ET.SubElement(Transcript, "text")  
                             #Text2.set("lang", "la")            #text in latin       
@@ -2744,9 +2734,7 @@ class App:
                             
             i = i + 1 #increment counter of the item while loop by 1
         
-        ###
-        #Write all the information  we've stored so far into an xml file
-        ###
+        ########################################################################## Write all the information we've stored so far into an xml file ########################################
         
         xmlFile = open(xmlFileName, 'w') 
         
