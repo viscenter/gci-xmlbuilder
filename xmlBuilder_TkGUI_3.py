@@ -1100,207 +1100,7 @@ class App:
         
             num = num + 1
             
-    
-            
-        
-        ##item type
-        #(self.item_type).set(self.itemList[elemIndex][0])
-        
-        ##item title
-        #(self.item_title).delete(0, END)
-        #(self.item_title).insert(END, self.itemList[elemIndex][1]) 
-        
-        ##item description
-        ##(self.item_description).delete(0, END)
-        #(self.item_description).insert(END, self.itemList[elemIndex][2]) 
-        
-        ##item transcript
-        ##(self.item_transcript).delete(0, END)
-        #(self.item_transcript).insert(END, self.itemList[elemIndex][3])         
-        
-        ##item originalSource
-        #(self.item_originalSource).delete(0, END)
-        #(self.item_originalSource).insert(END, self.itemList[elemIndex][4]) 
-
-        ##item license
-        #(self.item_license).delete(0, END)
-        #(self.item_license).insert(END, self.itemList[elemIndex][5])
-        
-        ##item copyright
-        #(self.item_copyright).delete(0, END)
-        #(self.item_copyright).insert(END, self.itemList[elemIndex][6])
-        
-        ##item permission
-        #(self.item_permission).delete(0, END)
-        #(self.item_permission).insert(END, self.itemList[elemIndex][7])
-        
-        ##item file
-        #(self.item_file).delete(0, END)
-        #(self.item_file).insert(END, self.itemList[elemIndex][8])
-        
-        ##item googlePath
-        #(self.item_googlePath).delete(0, END)
-        #(self.item_googlePath).insert(END, self.itemList[elemIndex][9])
-        
-        ##item googleID
-        #(self.item_googleID).delete(0, END)
-        #(self.item_googleID).insert(END, self.itemList[elemIndex][10])
-        
-        ##item fileType
-        #(self.item_fileType).delete(0, END)
-        #(self.item_fileType).insert(END, self.itemList[elemIndex][11])
-        
-        ##item language
-        #(self.item_language).set(self.itemList[elemIndex][12])
-
-        ##item format
-        #(self.item_format).delete(0, END)
-        #(self.item_format).insert(END, self.itemList[elemIndex][13]) 
-
-        ##item provenance
-        #(self.item_provenance).delete(0, END)
-        #(self.item_provenance).insert(END, self.itemList[elemIndex][14])
-        
-        ##item subject
-        #(self.item_subject).delete(0, END)
-        #(self.item_subject).insert(END, self.itemList[elemIndex][15])
-        
-        ##item creator
-        #(self.item_creator).delete(0, END)
-        #(self.item_creator).insert(END, self.itemList[elemIndex][16]) 
-
-        ##item contributor
-        #(self.item_contributor).delete(0, END)
-        #(self.item_contributor).insert(END, self.itemList[elemIndex][17]) 
-
-        ##item publisher
-        #(self.item_publisher).delete(0, END)
-        #(self.item_publisher).insert(END, self.itemList[elemIndex][18]) 
-
-        ##item primary place
-        #(self.item_primaryPlace).delete(0, END)
-        #(self.item_primaryPlace).insert(END, self.itemList[elemIndex][19])
-        
-        ##item primaryLatitude
-        #(self.item_primaryLatitude).delete(0, END)
-        #(self.item_primaryLatitude).insert(END, self.itemList[elemIndex][20]) 
-
-        ##item primaryLongitude
-        #(self.item_primaryLongitude).delete(0, END)
-        #(self.item_primaryLongitude).insert(END, self.itemList[elemIndex][21])
-        
-        ##item primStartDay
-        #(self.item_primStartDay).delete(0, END)
-        #(self.item_primStartDay).insert(END, self.itemList[elemIndex][22])
-
-        ##item primStartMonth
-        #(self.item_primStartMonth).delete(0, END)
-        #(self.item_primStartMonth).insert(END, self.itemList[elemIndex][23])
-        
-        ##item primStartYear
-        #(self.item_primStartYear).delete(0, END)
-        #(self.item_primStartYear).insert(END, self.itemList[elemIndex][24])
-
-        ##item primEndDay
-        #(self.item_primEndDay).delete(0, END)
-        #(self.item_primEndDay).insert(END, self.itemList[elemIndex][25])
-        
-        ##item primEndMonth
-        #(self.item_primEndMonth).delete(0, END)
-        #(self.item_primEndMonth).insert(END, self.itemList[elemIndex][26])
-        
-        ##item primEndYear
-        #(self.item_primEndYear).delete(0, END)
-        #(self.item_primEndYear).insert(END, self.itemList[elemIndex][27])
-        
-        ##item createdPlace
-        #(self.item_createdPlace).delete(0, END)
-        #(self.item_createdPlace).insert(END, self.itemList[elemIndex][28])
-        
-        ##item createdLatitude
-        #(self.item_createdLatitude).delete(0, END)
-        #(self.item_createdLatitude).insert(END, self.itemList[elemIndex][29])
-            
-        ##item createdLongitude
-        #(self.item_createdLongitude).delete(0, END)
-        #(self.item_createdLongitude).insert(END, self.itemList[elemIndex][30])
-        
-        ##item creStartDay
-        #(self.item_creStartDay).delete(0, END)
-        #(self.item_creStartDay).insert(END, self.itemList[elemIndex][31])
-        
-        ##item creStartMonth
-        #(self.item_creStartMonth).delete(0, END)
-        #(self.item_creStartMonth).insert(END, self.itemList[elemIndex][32])
-        
-        ##item creStartYear
-        #(self.item_creStartYear).delete(0, END)
-        #(self.item_creStartYear).insert(END, self.itemList[elemIndex][33])
-        
-        ##item creEndDay
-        #(self.item_creEndDay).delete(0, END)
-        #(self.item_creEndDay).insert(END, self.itemList[elemIndex][34])
-        
-        ##item creEndMonth
-        #(self.item_creEndMonth).delete(0, END)
-        #(self.item_creEndMonth).insert(END, self.itemList[elemIndex][35])
-        
-        ##item creEndYear
-        #(self.item_creEndYear).delete(0, END)
-        #(self.item_creEndYear).insert(END, self.itemList[elemIndex][36])
-        
-        ##item publishedPlace
-        #(self.item_publishedPlace).delete(0, END)
-        #(self.item_publishedPlace).insert(END, self.itemList[elemIndex][37])
-        
-        ##item publishedLatitude
-        #(self.item_publishedLatitude).delete(0, END)
-        #(self.item_publishedLatitude).insert(END, self.itemList[elemIndex][38])
-        
-        ##item publishedLongitude
-        #(self.item_publishedLongitude).delete(0, END)
-        #(self.item_publishedLongitude).insert(END, self.itemList[elemIndex][39])
-        
-        ##item pubStartDay
-        #(self.item_pubStartDay).delete(0, END)
-        #(self.item_pubStartDay).insert(END, self.itemList[elemIndex][40])
-        
-        ##item pubStartMonth
-        #(self.item_pubStartMonth).delete(0, END)
-        #(self.item_pubStartMonth).insert(END, self.itemList[elemIndex][41])
-        
-        ##item pubStartYear
-        #(self.item_pubStartYear).delete(0, END)
-        #(self.item_pubStartYear).insert(END, self.itemList[elemIndex][42])
-        
-        ##item pubEndDay
-        #(self.item_pubEndDay).delete(0, END)
-        #(self.item_pubEndDay).insert(END, self.itemList[elemIndex][43])
-        
-        ##item pubEndMonth
-        #(self.item_pubEndMonth).delete(0, END)
-        #(self.item_pubEndMonth).insert(END, self.itemList[elemIndex][44])
-
-        ##item pubEndYear
-        #(self.item_pubEndYear).delete(0, END)
-        #(self.item_pubEndYear).insert(END, self.itemList[elemIndex][45])
-
-        ##item identifier
-        #(self.item_identifier).delete(0, END)
-        #(self.item_identifier).insert(END, self.itemList[elemIndex][46])
-        
-        ##originalSource URL
-        #(self.item_oriURL).delete(0, END)
-        #(self.item_oriURL).insert(END, self.itemList[elemIndex][47])
-        
-        ##license URL
-        #(self.item_liURL).delete(0, END)
-        #(self.item_liURL).insert(END, self.itemList[elemIndex][48])
-        
-        ##item disclaimer
-        ##(self.item_disclaimer).delete(0, END)
-        #(self.item_disclaimer).insert(END, self.itemList[elemIndex][49])
-        
+ 
         
      
     def editListInfo(self, error):
@@ -1324,167 +1124,8 @@ class App:
                 else:
                     self.itemList[elemIndex][num] = (itemnames[num]).get("1.0", END)
                 num = num + 1 
-                
-        
-        #if not error: #if there are no errors, change info from the item list and leave the window
-        
-            #elemIndex = self.leindex
-            
-            ##item type
-            #self.itemList[elemIndex][0] = (self.item_type).get()
-            
-            ##item title
-            #self.itemList[elemIndex][1] = (self.item_title).get()
-            
-            ##item description
-            #self.itemList[elemIndex][2] = (self.item_description).get("1.0", END) 
-            
-            ##item transcript
-            #self.itemList[elemIndex][3] = (self.item_transcript).get("1.0", END)          
-            
-            ##item originalSource
-            #self.itemList[elemIndex][4] = (self.item_originalSource).get()
-    
-            ##item license
-            #self.itemList[elemIndex][5] = (self.item_license).get()
-            
-            ##item copyright
-            #self.itemList[elemIndex][6] = (self.item_copyright).get()
-            
-            ##item permission
-            #self.itemList[elemIndex][7] = (self.item_permission).get()
-            
-            ##item file
-            #self.itemList[elemIndex][8] = (self.item_file).get()
-            
-            ##item googlePath
-            #self.itemList[elemIndex][9] = (self.item_googlePath).get()
-            
-            ##item googleID
-            #self.itemList[elemIndex][10] = (self.item_googleID).get()
-            
-            ##item fileType
-            #self.itemList[elemIndex][11] = (self.item_fileType).get()
-            
-            ##item language
-            #self.itemList[elemIndex][12] = (self.item_language).get()
-    
-            ##item format
-            #self.itemList[elemIndex][13] = (self.item_format).get() 
-    
-            ##item provenance
-            #self.itemList[elemIndex][14] = (self.item_provenance).get()
-            
-            ##item subject
-            #self.itemList[elemIndex][15] = (self.item_subject).get()
-            
-            ##item creator
-            #self.itemList[elemIndex][16] = (self.item_creator).get()
-    
-            ##item contributor
-            #self.itemList[elemIndex][17] = (self.item_contributor).get()
-    
-            ##item publisher
-            #self.itemList[elemIndex][18] = (self.item_publisher).get()
-    
-            ##item primary place
-            #self.itemList[elemIndex][19] = (self.item_primaryPlace).get()
-            
-            ##item primaryLatitude
-            #self.itemList[elemIndex][20] = (self.item_primaryLatitude).get() 
-    
-            ##item primaryLongitude
-            #self.itemList[elemIndex][21] = (self.item_primaryLongitude).get()
-            
-            ##item primStartDay
-            #self.itemList[elemIndex][22] = (self.item_primStartDay).get()
-    
-            ##item primStartMonth
-            #self.itemList[elemIndex][23] = (self.item_primStartMonth).get()
-            
-            ##item primStartYear
-            #self.itemList[elemIndex][24] = (self.item_primStartYear).get()
-    
-            ##item primEndDay
-            #self.itemList[elemIndex][25] = (self.item_primEndDay).get()
-            
-            ##item primEndMonth
-            #self.itemList[elemIndex][26] = (self.item_primEndMonth).get()
-            
-            ##item primEndYear
-            #self.itemList[elemIndex][27] = (self.item_primEndYear).get()
-            
-            ##item createdPlace
-            #self.itemList[elemIndex][28] = (self.item_createdPlace).get()
-            
-            ##item createdLatitude
-            #self.itemList[elemIndex][29] = (self.item_createdLatitude).get()
-                
-            ##item createdLongitude
-            #self.itemList[elemIndex][30] = (self.item_createdLongitude).get()
-            
-            ##item creStartDay
-            #self.itemList[elemIndex][31] = (self.item_creStartDay).get()
-            
-            ##item creStartMonth
-            #self.itemList[elemIndex][32] = (self.item_creStartMonth).get()
-            
-            ##item creStartYear
-            #self.itemList[elemIndex][33] = (self.item_creStartYear).get()
-            
-            ##item creEndDay
-            #self.itemList[elemIndex][34] = (self.item_creEndDay).get()
-            
-            ##item creEndMonth
-            #self.itemList[elemIndex][35] = (self.item_creEndMonth).get()
-            
-            ##item creEndYear
-            #self.itemList[elemIndex][36] = (self.item_creEndYear).get()
-            
-            ##item publishedPlace
-            #self.itemList[elemIndex][37] = (self.item_publishedPlace).get()
-            
-            ##item publishedLatitude
-            #self.itemList[elemIndex][38] = (self.item_publishedLatitude).get()
-            
-            ##item publishedLongitude
-            #self.itemList[elemIndex][39] = (self.item_publishedLongitude).get()
-            
-            ##item pubStartDay
-            #self.itemList[elemIndex][40] = (self.item_pubStartDay).get()
-            
-            ##item pubStartMonth
-            #self.itemList[elemIndex][41] = (self.item_pubStartMonth).get()
-            
-            ##item pubStartYear
-            #self.itemList[elemIndex][42] = (self.item_pubStartYear).get()
-            
-            ##item pubEndDay
-            #self.itemList[elemIndex][43] = (self.item_pubEndDay).get()
-            
-            ##item pubEndMonth
-            #self.itemList[elemIndex][44] = (self.item_pubEndMonth).get()
-    
-            ##item pubEndYear
-            #self.itemList[elemIndex][45] = (self.item_pubEndYear).get()
-    
-            ##item identifier
-            #self.itemList[elemIndex][46] = (self.item_identifier).get()
-            
-            ##originalSource URL
-            #self.itemList[elemIndex][47] = (self.item_oriURL).get()
-            
-            ##license URL
-            #self.itemList[elemIndex][48] = (self.item_liURL).get()
-            
-            ##disclaimer
-            #self.itemList[elemIndex][49] = (self.item_disclaimer).get("1.0",END)
-            
-            
-            
-            
-            
-            
+
+
         
             #if item ID had been changed, then change the old item ID stored in (some of) the subitems to the new ID
         
@@ -1690,33 +1331,16 @@ class App:
     
     def checkForErrors(self, order):
         
-        #make entry widgets have no highlight first
+        #make entry widgets have no highlight first for all except self.item_type
+        itemnames = [self.item_type, self.item_title, self.item_description, self.item_file, self.item_googlePath, self.item_googleID, self.item_primStartDay, self.item_primStartMonth, self.item_primStartYear, self.item_primEndDay, self.item_primEndMonth, self.item_primEndYear, self.item_creStartDay, self.item_creStartMonth, self.item_creStartYear, self.item_creEndDay, self.item_creEndMonth, self.item_creEndYear, self.item_pubStartDay, self.item_pubStartMonth, self.item_pubStartYear, self.item_pubEndDay, self.item_pubEndMonth, self.item_pubEndYear]
         
-        #(self.item_type).configure(highlightbackground="black")
-        (self.item_title).configure(highlightbackground="white")
-        (self.item_description).configure(highlightbackground="white")
-        (self.item_file).configure(highlightbackground="white")
-        (self.item_googlePath).configure(highlightbackground="white")
-        (self.item_googleID).configure(highlightbackground="white")
-        (self.item_primStartDay).configure(highlightbackground="white")
-        (self.item_primStartMonth).configure(highlightbackground="white")
-        (self.item_primStartYear).configure(highlightbackground="white")
-        (self.item_primEndDay).configure(highlightbackground="white")
-        (self.item_primEndMonth).configure(highlightbackground="white")
-        (self.item_primEndYear).configure(highlightbackground="white")
-        (self.item_creStartDay).configure(highlightbackground="white")
-        (self.item_creStartMonth).configure(highlightbackground="white")
-        (self.item_creStartYear).configure(highlightbackground="white")
-        (self.item_creEndDay).configure(highlightbackground="white")
-        (self.item_creEndMonth).configure(highlightbackground="white")
-        (self.item_creEndYear).configure(highlightbackground="white")
-        (self.item_pubStartDay).configure(highlightbackground="white")
-        (self.item_pubStartMonth).configure(highlightbackground="white")
-        (self.item_pubStartYear).configure(highlightbackground="white")
-        (self.item_pubEndDay).configure(highlightbackground="white")
-        (self.item_pubEndMonth).configure(highlightbackground="white")
-        (self.item_pubEndYear).configure(highlightbackground="white")
+        num = 0
         
+        for i in itemnames: 
+            if num != 0:
+                (itemnames[num]).configure(highlightbackground="white")
+            
+            num = num + 1
         
         #now check for errors in input
         
@@ -2086,71 +1710,83 @@ class App:
         if not error: #if there are no errors, add info to the item list and leave the window
             
             tempList = []
+            
+            itemnames = [self.item_type, self.item_title, self.item_description, self.item_transcript, self.item_originalSource, self.item_license, self.item_copyright, self.item_permission, self.item_file, self.item_googlePath, self.item_googleID, self.item_fileType, self.item_language, self.item_format, self.item_provenance, self.item_subject, self.item_creator, self.item_contributor, self.item_publisher, self.item_primaryPlace, self.item_primaryLatitude, self.item_primaryLongitude, self.item_primStartDay, self.item_primStartMonth, self.item_primStartYear, self.item_primEndDay, self.item_primEndMonth, self.item_primEndYear, self.item_createdPlace, self.item_createdLatitude, self.item_createdLongitude, self.item_creStartDay, self.item_creStartMonth, self.item_creStartYear, self.item_creEndDay, self.item_creEndMonth, self.item_creEndYear, self.item_publishedPlace, self.item_publishedLatitude, self.item_publishedLongitude, self.item_pubStartDay, self.item_pubStartMonth, self.item_pubStartYear, self.item_pubEndDay, self.item_pubEndMonth, self.item_pubEndYear, self.item_identifier, self.item_oriURL, self.item_liURL, self.item_disclaimer]
+            
+            num = 0
+            
+            for i in itemnames:
                 
-            tempList.append((self.item_type).get())
-            tempList.append((self.item_title).get())
-            tempList.append((self.item_description).get("1.0",END))
-            tempList.append((self.item_transcript).get("1.0",END))
-            tempList.append((self.item_originalSource).get())
-            tempList.append((self.item_license).get())
-            tempList.append((self.item_copyright).get())
-            tempList.append((self.item_permission).get())
+                if num == 2 or num == 3 or num == 49:
+                    tempList.append((itemnames[num]).get("1.0", END))
+                else:
+                    tempList.append((itemnames[num]).get())
+                num = num + 1
+                
+            #tempList.append((self.item_type).get())
+            #tempList.append((self.item_title).get())
+            #tempList.append((self.item_description).get("1.0",END))
+            #tempList.append((self.item_transcript).get("1.0",END))
+            #tempList.append((self.item_originalSource).get())
+            #tempList.append((self.item_license).get())
+            #tempList.append((self.item_copyright).get())
+            #tempList.append((self.item_permission).get())
             
-            tempList.append((self.item_file).get())
+            #tempList.append((self.item_file).get())
             
-            tempList.append((self.item_googlePath).get())
-            tempList.append((self.item_googleID).get())
-            tempList.append((self.item_fileType).get())
-            tempList.append((self.item_language).get())
-            tempList.append((self.item_format).get())
-            tempList.append((self.item_provenance).get())
-            tempList.append((self.item_subject).get())
-            tempList.append((self.item_creator).get())
-            tempList.append((self.item_contributor).get())
-            tempList.append((self.item_publisher).get())
+            #tempList.append((self.item_googlePath).get())
+            #tempList.append((self.item_googleID).get())
+            #tempList.append((self.item_fileType).get())
+            #tempList.append((self.item_language).get())
+            #tempList.append((self.item_format).get())
+            #tempList.append((self.item_provenance).get())
+            #tempList.append((self.item_subject).get())
+            #tempList.append((self.item_creator).get())
+            #tempList.append((self.item_contributor).get())
+            #tempList.append((self.item_publisher).get())
             
-            #primary 
-            tempList.append((self.item_primaryPlace).get())
-            tempList.append((self.item_primaryLatitude).get())
-            tempList.append((self.item_primaryLongitude).get())
-            tempList.append((self.item_primStartDay).get())
-            tempList.append((self.item_primStartMonth).get())
-            tempList.append((self.item_primStartYear).get())
-            tempList.append((self.item_primEndDay).get())
-            tempList.append((self.item_primEndMonth).get())
-            tempList.append((self.item_primEndYear).get())
+            ##primary 
+            #tempList.append((self.item_primaryPlace).get())
+            #tempList.append((self.item_primaryLatitude).get())
+            #tempList.append((self.item_primaryLongitude).get())
+            #tempList.append((self.item_primStartDay).get())
+            #tempList.append((self.item_primStartMonth).get())
+            #tempList.append((self.item_primStartYear).get())
+            #tempList.append((self.item_primEndDay).get())
+            #tempList.append((self.item_primEndMonth).get())
+            #tempList.append((self.item_primEndYear).get())
             
-            #created
-            tempList.append((self.item_createdPlace).get())
-            tempList.append((self.item_createdLatitude).get())
-            tempList.append((self.item_createdLongitude).get())
-            tempList.append((self.item_creStartDay).get())
-            tempList.append((self.item_creStartMonth).get())
-            tempList.append((self.item_creStartYear).get())
-            tempList.append((self.item_creEndDay).get())
-            tempList.append((self.item_creEndMonth).get())
-            tempList.append((self.item_creEndYear).get())
+            ##created
+            #tempList.append((self.item_createdPlace).get())
+            #tempList.append((self.item_createdLatitude).get())
+            #tempList.append((self.item_createdLongitude).get())
+            #tempList.append((self.item_creStartDay).get())
+            #tempList.append((self.item_creStartMonth).get())
+            #tempList.append((self.item_creStartYear).get())
+            #tempList.append((self.item_creEndDay).get())
+            #tempList.append((self.item_creEndMonth).get())
+            #tempList.append((self.item_creEndYear).get())
             
-            #published
-            tempList.append((self.item_publishedPlace).get())
-            tempList.append((self.item_publishedLatitude).get())
-            tempList.append((self.item_publishedLongitude).get())
-            tempList.append((self.item_pubStartDay).get())
-            tempList.append((self.item_pubStartMonth).get())
-            tempList.append((self.item_pubStartYear).get())
-            tempList.append((self.item_pubEndDay).get())
-            tempList.append((self.item_pubEndMonth).get())
-            tempList.append((self.item_pubEndYear).get())
+            ##published
+            #tempList.append((self.item_publishedPlace).get())
+            #tempList.append((self.item_publishedLatitude).get())
+            #tempList.append((self.item_publishedLongitude).get())
+            #tempList.append((self.item_pubStartDay).get())
+            #tempList.append((self.item_pubStartMonth).get())
+            #tempList.append((self.item_pubStartYear).get())
+            #tempList.append((self.item_pubEndDay).get())
+            #tempList.append((self.item_pubEndMonth).get())
+            #tempList.append((self.item_pubEndYear).get())
             
-            tempList.append((self.item_identifier).get())
+            #tempList.append((self.item_identifier).get())
 
-            #URLs
+            ##URLs
             
-            tempList.append((self.item_oriURL).get())
-            tempList.append((self.item_liURL).get())
+            #tempList.append((self.item_oriURL).get())
+            #tempList.append((self.item_liURL).get())
             
-            #disclaimer
-            tempList.append((self.item_disclaimer).get("1.0",END))
+            ##disclaimer
+            #tempList.append((self.item_disclaimer).get("1.0",END))
             
                 
             (self.itemList).append(tempList)
