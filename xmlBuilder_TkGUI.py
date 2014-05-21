@@ -57,6 +57,9 @@ class App:
         #Import button
         self.import_info = Button(self.item_frame, text="Import", command=lambda: self.openInfoClick("import"))
         (self.import_info).grid(row=0, column=3, sticky=W)
+        #Expand button
+        self.display_info = Button(self.item_frame, text="Expand", command=lambda: self.displaysub("display"))
+        (self.display_info).grid(row=0, column=4, sticky=W)
         
         #right corner buttons
         
@@ -1758,7 +1761,7 @@ class App:
                     NoExtFile = NoExtList[0]              #filename without extension
                     DividedName= NoExtFile.split("-")     #filename divided by '-'
                     sizeNoExt = len(DividedName)      
-                    pageNumber = DividedName[sizeNoExt - 1]
+                    pageNumber = DividedName[-2]
                     pageNumber = int(pageNumber) #last part of file name, the page number
                     
                     #add id of subitem
@@ -1790,10 +1793,10 @@ class App:
                     #add image path
                     pathOfImage = (self.item_googlePath).get() + filename #result: googlePath/ChadGospels-page.jpg
                     tempList.append(pathOfImage)
-                    
-                    #add english and latin transcripts
-                    tempList.append(EnglishTranscript)                   
-                    tempList.append(LatinTranscript)                     
+##                    
+##                    #add english and latin transcript, is this needed?
+##                    tempList.append(EnglishTranscript)                   
+##                    tempList.append(LatinTranscript)                     
                     
                     #add the list with the subitem information into the list that will contain the info of ALL the subitems
                     (self.subitemList).append(tempList)                          
@@ -1929,6 +1932,7 @@ class App:
                 #    tempList.append(Rchild[0].text)
                 
                 leindex2 = 0
+                subitemList = []
                 
                 if (Rchild.tag == "customlink") or (Rchild.tag == "originalSource"):
             
@@ -2133,6 +2137,7 @@ class App:
                     #i = i + 1
                     
                         (self.subitemList).append(subList)
+
                         
             
             tempList[0] = item_type
@@ -2142,11 +2147,55 @@ class App:
             #add info to visible list        
             string = str((self.itemList[len(self.itemList) - 1][0]) + (self.itemList[len(self.itemList) - 1][1]))
             (self.listbox).insert(END, string)
-            
-            #add index to index list
-            
+
+            #add index to index list           
             (self.indexList).append(len(self.itemList) - 1)
-    
+
+            
+
+
+
+   #Function to display subitems of a collenction when the Expand Button is selected
+
+    def displaysub(self, order):
+        
+        
+        
+        if order == "display":
+            
+            selected = (self.listbox).curselection()
+            self.leindex = int(selected[0]) #only one item selected
+            elemIndex = self.leindex
+        
+        if len(selected) != 1:
+            
+            return
+        
+        
+        self.DisplayItemWindow = Tk()
+        
+        (self.DisplayItemWindow).title("Display")
+        
+        (self.DisplayItemWindow).configure(background='grey')
+        
+        (self.DisplayItemWindow).configure(borderwidth=20)
+        
+        (self.DisplayItemWindow).resizable(width=FALSE, height=FALSE)
+        
+        self.sublistbox = Listbox(self.DisplayItemWindow, width=125, height=35, selectmode=MULTIPLE)
+        (self.sublistbox).grid(row=1, column=0, columnspan=3, sticky=N+E+W+S)
+
+        i=0
+
+        for item in (self.subitemList):
+            if self.itemList[elemIndex][10] in self.subitemList[i][0]:
+                (self.sublistbox).insert(END, (self.subitemList)[i])
+            i += 1
+
+        return 0
+
+
+
     ################################################# Function that returns index where info of tag should be saved into tempList array #################################################
     
     def getIndex(self, tag):
