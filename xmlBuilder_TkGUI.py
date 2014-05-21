@@ -35,6 +35,7 @@ class App:
         (self.openxmlfile).set("") #used to wright below xml builder name on interface for things like error instructions
         Label(self.RootWindow, textvariable=self.openxmlfile).grid(row=0, column=1, sticky=N+E+W+S)
         
+        
         self.openxmlfile_path = StringVar(self.RootWindow)
                 
         self.listbox = Listbox(self.RootWindow, width=125, height=35, selectmode=MULTIPLE)
@@ -98,16 +99,12 @@ class App:
             
             if len(selected) != 1:
                 (self.openxmlfile).set("**** Please select only one line to edit ****")#used to wright below xml builder name on interface for things like error instructions
-               
-                
                 return
         
         self.AddItemWindow = Tk()
         
         (self.AddItemWindow).title("Add Item...")
-        
-        #(self.AddItemWindow).configure(background='grey')
-        
+                
         (self.AddItemWindow).configure(borderwidth=20)
         
         (self.AddItemWindow).resizable(width=FALSE, height=FALSE)
@@ -1109,10 +1106,10 @@ class App:
      
     def editListInfo(self, error):
         
-        if "" not in (self.openxmlfile).get():#had *
+        if " " not in (self.openxmlfile).get():#had *
         
             xmlname = (self.openxmlfile).get()
-            xmlname = xmlname + ""#had *
+            xmlname = xmlname + " "#had *
             (self.openxmlfile).set(xmlname)
             
         
@@ -1120,10 +1117,12 @@ class App:
         
         num = 0
         
+        elemIndex = self.leindex
+        
         if not error: #if there are no errors, change info from the item list and leave the window
             
             for i in itemnames:
-                if i != 2 and i != 3 and i != 49:
+                if num != 2 and num != 3 and num != 49:
                     self.itemList[elemIndex][num] = (itemnames[num]).get()
                 else:
                     self.itemList[elemIndex][num] = (itemnames[num]).get("1.0", END)
@@ -1746,6 +1745,9 @@ class App:
                 tempList = [] #reuse tempList to store information of one subitem at a time
                 
                 counter = 0
+                        
+                altpageNumber = 901  #if page number is nonnumberic, numbering will start at 901
+                
             
                 while counter < len(namesOfFiles):
                     ###
@@ -1762,7 +1764,11 @@ class App:
                     DividedName= NoExtFile.split("-")     #filename divided by '-'
                     sizeNoExt = len(DividedName)      
                     pageNumber = DividedName[-2]
-                    pageNumber = int(pageNumber) #last part of file name, the page number
+                    if pageNumber.isdigit():    
+                        pageNumber = int(pageNumber) #last part of file name, the page number
+                    else:
+                        pageNumber = altpageNumber 
+                        altpageNumber += 1
                     
                     #add id of subitem
                     tempList.append((self.item_id).get() + "-" + str(pageNumber))
@@ -2166,15 +2172,18 @@ class App:
             selected = (self.listbox).curselection()
             self.leindex = int(selected[0]) #only one item selected
             elemIndex = self.leindex
+            (self.openxmlfile).set("")#takes away error message
+        
         
         if len(selected) != 1:
+            (self.openxmlfile).set("**** Please select only one line to expand ****")#used to wright below xml builder name on interface for things like error instructions
             
             return
         
         
         self.DisplayItemWindow = Tk()
         
-        (self.DisplayItemWindow).title("Display")
+        (self.DisplayItemWindow).title("Images")
         
         (self.DisplayItemWindow).configure(background='grey')
         
@@ -2313,7 +2322,7 @@ class App:
 
     def saveClick(self, order):
         
-        if ( ((self.openxmlfile).get() == "Untitled") or ((((self.openxmlfile).get() == "Untitled*"))) and (order == "overwrite")) or (order == "write"):
+        if ( ((self.openxmlfile).get() == "") or ((((self.openxmlfile).get() == ""))) and ((order == "overwrite")) or (order == "write")):
             
             xmlFileName = asksaveasfilename(title="Select a folder to save the xml file and write the new file name for the file")
         
@@ -2785,7 +2794,8 @@ class App:
         
         ########################################################################## Write all the information we've stored so far into an xml file ########################################
         
-        xmlFile = open(xmlFileName, 'w') 
+        xmlFile = open(xmlFileName, "w") 
+       
         
         reparsed = minidom.parseString(ET.tostring(Itemset)) 
         
